@@ -18,4 +18,12 @@
 # include "libft.h"
 # include <fcntl.h>
 
+typedef struct s_map
+{
+	int	wall;
+	int	coin;
+	int	player;
+	int	exit;
+}	t_map;
+
 #endif

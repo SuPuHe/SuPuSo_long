@@ -12,81 +12,99 @@
 
 #include "so_long.h"
 
-int	ft_line_check(char *line, int width)
+void	free_all_gnl(void)
 {
-	int	i;
-	int	coin;
-	int	player;
-	int	exit;
-	int	wall;
+	int				fd;
+	t_gnl			*gnl;
+	static t_gnl	**gnl_array_ptr;
 
-	i = 0;
-	coin = 0;
-	player = 0;
-	exit = 0;
-	wall = 0;
-	if (line[i] != '1' && line[width] != '1')
-		return (ft_printf("Wall is missing\n"), -1);
-	while (i < width)
+	gnl_array_ptr = NULL;
+	if (!gnl_array_ptr)
+		gnl_array_ptr = (t_gnl **)get_gnl_array();
+	fd = 0;
+	while (fd < 1024)
 	{
-		if (line[i] == '1')
-			wall++;
-		else if (line[i] == 'C')
-			coin++;
-		else if (line[i] == 'E')
-			exit++;
-		else if (line[i] == 'P')
-			player++;
-		else if (line[i] == '0')
+		gnl = gnl_array_ptr[fd];
+		if (gnl)
 		{
-			i++;
-			continue ;
+			if (gnl->buf)
+				free(gnl->buf);
+			free(gnl);
+			gnl_array_ptr[fd] = NULL;
 		}
-		else
-			return (ft_printf("Wrong map |%c|\n", line[i]), -1);
-		i++;
+		fd++;
 	}
-	if (wall == width)
-		return (1);
-	else
-		return (0);
 }
 
-int	ft_input_check(char *argv)
+char	*ft_get_map(char *argv)
 {
 	int				fd;
 	unsigned long	width;
 	char			*line;
 	char			*joined;
+	char			*tmp;
 
-	joined = ft_strdup("");
 	fd = open(argv, O_RDONLY);
-	if (!fd)
-		return(ft_printf("Error with map name/path\n"), 1);
+	if (fd == -1)
+		return (ft_printf("Error with map name/path\n"), NULL);
+	joined = ft_strdup("");
 	line = get_next_line(fd);
+	if (!line)
+		return (free(joined), close(fd), ft_printf("Empty map or read error\n"), NULL);
 	width = ft_strlen(line) - 1;
 	while (line != NULL)
 	{
 		if (width != ft_strlen(line) - 1)
-			return(free(line), free(joined), ft_printf("Error_Map is assymetric\n"), 1);
-		ft_printf("line : %s", line);
-		//ft_line_check(line, width);
-		joined = ft_strjoin(joined, line);
+			return (free(line), free(joined), close(fd), ft_printf("Error_Map is assymetric\n"), NULL);
+		tmp = ft_strjoin(joined, line);
+		free(joined);
+		joined = tmp;
 		free(line);
 		line = get_next_line(fd);
-		if (!line)
-			break ;
 	}
 	close(fd);
-	return (0);
+	return (joined);
+}
+
+int	ft_map_check(char *map)
+{
+	t_map	map_struct;
+	int		i;
+
+	i = 0;
+	map_struct = (t_map){0, 0, 0, 0};
+	while (map[i])
+	{
+		ft_printf("DEBUG: map[i]=%d ('%c') at i=%d\n", map[i], map[i], i);
+		if (map[i] == 'C')
+			map_struct.coin++;
+		else if (map[i] == 'P')
+			map_struct.player++;
+		else if (map[i] == 'E')
+			map_struct.exit++;
+		else if (map[i] == '1')
+			map_struct.wall++;
+		else if (map[i] == '0' || map[i] == '\n' || map[i] == '\0')
+			;
+		else
+			return (ft_printf("Wrong map |%c|\n", map[i]), 1);
+		i++;
+	}
+	if (map_struct.coin < 1 || map_struct.player != 1 || map_struct.exit != 1)
+		return (ft_printf("Error: Map is missing coin/player/exit\n"), 1);
+	else
+		return (0);
 }
 
 int	main(int argc, char **argv)
 {
+	char	*map;
+
 	if (argc != 2)
 		return (ft_printf("Error_argc is not 2\n"), 1);
-	ft_printf("Hello, so_long!\n");
-	//ft_printf("%s", argv[1]);
-	ft_input_check(argv[1]);
+	map = ft_get_map(argv[1]);
+	ft_map_check(map);
+	free(map);
+	free_all_gnl();
 	return (0);
 }

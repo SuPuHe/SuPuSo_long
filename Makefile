@@ -23,7 +23,7 @@ SUPULIB_DIR = SuPuLib
 SUPULIB_REPO = https://github.com/SuPuHe/SuPuLib.git
 SUPULIB_A = $(SUPULIB_DIR)/SuPuLib.a
 INCS_DIR = includes
-OBJS_DIR = obfj
+OBJS_DIR = objs
 SRCS_DIR = srcs
 
 INCLUDE = -I$(INCS_DIR) -I$(SUPULIB_DIR)/libft/includes -I$(SUPULIB_DIR)/ft_printf/includes -I$(SUPULIB_DIR)/get_next_line/includes
@@ -38,7 +38,7 @@ SRCS := $(addprefix $(SRCS_DIR)/, $(SRCS))
 
 OBJS = $(SRCS:$(SRCS_DIR)/%.c=$(OBJS_DIR)/%.o)
 
-all: $(NAME) $(SUPULIB_A)
+all: $(SUPULIB_A) $(NAME)
 
 $(SUPULIB_DIR):
 	@git clone $(SUPULIB_REPO) $(SUPULIB_DIR)
