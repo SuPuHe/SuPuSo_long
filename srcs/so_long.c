@@ -81,7 +81,7 @@ int	ft_map_check(char *map, t_map *map_struct)
 			map_struct->exit++;
 		else if (map[i] == '\n')
 			map_struct->height++;
-		else if (map[i] == '0' || map[i] == '1')
+		else if (map[i] == '0' || map[i] == '1' || map[i] == '\r')
 			;
 		else
 			return (ft_printf("Wrong map |%c|\n", map[i]), 1);
@@ -91,6 +91,48 @@ int	ft_map_check(char *map, t_map *map_struct)
 		return (ft_printf("Error: Incorrect map content \n"), 1);
 	else
 		return (0);
+}
+
+int	is_surrounded_by_walls(char **lines, int height, int width)
+{
+	int	i;
+
+	i = 0;
+	while (i < width)
+	{
+		if (lines[0][i] <= '\r' || lines[height - 1][i] <= '\r')
+			;
+		else if (lines[0][i] != '1' || lines[height - 1][i] != '1')
+			return (ft_printf("Error: Top or bottom border not walls\n"), 0);
+		i++;
+	}
+	i = 1;
+	while (i < height - 1)
+	{
+		if (lines[i][0] <= '\r' || lines[i][width - 1] <= '\r')
+			;
+		else if (lines[i][0] != '1' || lines[i][width - 1] != '1')
+			return (ft_printf("Error: Side wall missing at row %d\n", i), 0);
+	}
+	return (1);
+}
+
+char	**split_map_into_lines(char *map)
+{
+	char	**lines;
+
+	lines = ft_split(map, '\n');
+	return (lines);
+}
+
+static void	free_split(char **lines)
+{
+	int	i;
+
+	i = 0;
+	while (lines[i])
+		free(lines[i++]);
+	free(lines);
 }
 
 int	main(int argc, char **argv)
@@ -109,8 +151,12 @@ int	main(int argc, char **argv)
 	ft_printf("%s\n%d\n", map, ft_strlen(map));
 	if (ft_map_check(map, &map_struct) == 1 )
 		return (free(map), free_all_gnl(), 1);
-	ft_printf("%d", map_struct.height);
+	char **lines = split_map_into_lines(map);
+	int width = ft_strlen(lines[0]);
+	ft_printf("%d\n", width);
+	if (!is_surrounded_by_walls(lines, map_struct.height, width))
+		return (free(map), free_split(lines), 1);
+	free_split(lines);
 	free(map);
-	free_all_gnl();
 	return (0);
 }
