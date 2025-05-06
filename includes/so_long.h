@@ -6,7 +6,7 @@
 /*   By: omizin <omizin@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:17:42 by omizin            #+#    #+#             */
-/*   Updated: 2025/05/05 11:53:15 by omizin           ###   ########.fr       */
+/*   Updated: 2025/05/06 12:58:32 by omizin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 
 typedef struct s_map
 {
-	int	wall;
+	int	height;
 	int	coin;
 	int	player;
 	int	exit;

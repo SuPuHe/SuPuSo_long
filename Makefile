@@ -6,7 +6,7 @@
 #    By: omizin <omizin@student.42heilbronn.de>     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/05 10:19:05 by omizin            #+#    #+#              #
-#    Updated: 2025/05/05 11:06:34 by omizin           ###   ########.fr        #
+#    Updated: 2025/05/06 13:29:34 by omizin           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,6 +25,10 @@ SUPULIB_A = $(SUPULIB_DIR)/SuPuLib.a
 INCS_DIR = includes
 OBJS_DIR = objs
 SRCS_DIR = srcs
+MLX_DIR = ./mlx
+
+MLX_NAME =	$(MLX_DIR)/build/libmlx42.a -ldl -lglfw -pthread -lm
+MLX 	=	$(MLX_DIR)/build/libmlx42.a -ldl -lglfw -pthread -lm
 
 INCLUDE = -I$(INCS_DIR) -I$(SUPULIB_DIR)/libft/includes -I$(SUPULIB_DIR)/ft_printf/includes -I$(SUPULIB_DIR)/get_next_line/includes
 CFLAGS = -Wall -Wextra -Werror $(INCLUDE)
@@ -47,8 +51,8 @@ $(SUPULIB_DIR):
 $(SUPULIB_A): | $(SUPULIB_DIR)
 	@$(MAKE) -C $(SUPULIB_DIR)
 
-$(NAME): $(OBJS) $(SUPULIB_A)
-	@$(CC) $(CFLAGS) $(OBJS) $(SUPULIB_A) -o $(NAME)
+$(NAME): checkMLX $(SUPULIB_A) $(OBJS)
+	@$(CC) $(CFLAGS) $(MLX) $(OBJS) $(SUPULIB_A) -o $(NAME)
 	@echo "$(GREEN)so_long compiled successfully$(RESET_COLOR)"
 
 $(OBJS_DIR)/%.o: $(SRCS_DIR)/%.c | $(OBJS_DIR)
@@ -56,6 +60,20 @@ $(OBJS_DIR)/%.o: $(SRCS_DIR)/%.c | $(OBJS_DIR)
 
 $(OBJS_DIR):
 	@mkdir -p $(OBJS_DIR)
+
+checkMLX:
+	@if	[ ! -d "$(MLX_DIR)" ];	then	\
+		git clone https://github.com/codam-coding-college/MLX42.git $(MLX_DIR) && \
+		cmake -B $(MLX_DIR)/build -S $(MLX_DIR) && \
+		make -C $(MLX_DIR)/build; \
+		if [ $$? -ne 0 ]; then \
+			echo "$(RED)Error building MLX42$(RESET_COLOR)"; \
+			exit 1; \
+		fi; \
+		echo "$(GREEN)MLX42 installed$(RESET_COLOR)"; \
+	else \
+		echo "$(GREEN)MLX42 already exists$(RESET_COLOR)"; \
+	fi
 
 clean:
 	@$(RM) $(OBJS_DIR)
