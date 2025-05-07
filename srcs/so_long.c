@@ -6,7 +6,7 @@
 /*   By: omizin <omizin@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:18:20 by omizin            #+#    #+#             */
-/*   Updated: 2025/05/06 13:01:29 by omizin           ###   ########.fr       */
+/*   Updated: 2025/05/07 12:48:34 by omizin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,7 +112,8 @@ int	is_surrounded_by_walls(char **lines, int height, int width)
 		if (lines[i][0] <= '\r' || lines[i][width - 1] <= '\r')
 			;
 		else if (lines[i][0] != '1' || lines[i][width - 1] != '1')
-			return (ft_printf("Error: Side wall missing at row %d\n", i), 0);
+			return (ft_printf("Error: Side wall missing at row %d\n", i + 1), 0);
+		i++;
 	}
 	return (1);
 }
@@ -135,10 +136,108 @@ static void	free_split(char **lines)
 	free(lines);
 }
 
+void	free_map(char **map)
+{
+	int	i;
+
+	if (!map)
+		return;
+	i = 0;
+	while (map[i])
+		free(map[i++]);
+	free(map);
+}
+
+char	**copy_map(char **map, int height)
+{
+	char	**copy;
+	int		i;
+
+	copy = malloc(sizeof(char *) * (height + 1));
+	if (!copy)
+		return (NULL);
+	i = 0;
+	while (i < height)
+	{
+		copy[i] = ft_strdup(map[i]);
+		if (!copy[i])
+		{
+			while (--i >= 0)
+				free(copy[i]);
+			free(copy);
+			return (NULL);
+		}
+		i++;
+	}
+	copy[height] = NULL;
+	return (copy);
+}
+
+void	flood_fill_count(char **map, int y, int x, int h, int w, int *coins, int *exit)
+{
+	if (y < 0 || y >= h || x < 0 || x >= w)
+		return;
+	if (map[y][x] == '1' || map[y][x] == 'F')
+		return;
+	if (map[y][x] == 'C')
+		(*coins)++;
+	else if (map[y][x] == 'E')
+		(*exit)++;
+	map[y][x] = 'F';
+	flood_fill_count(map, y + 1, x, h, w, coins, exit);
+	flood_fill_count(map, y - 1, x, h, w, coins, exit);
+	flood_fill_count(map, y, x + 1, h, w, coins, exit);
+	flood_fill_count(map, y, x - 1, h, w, coins, exit);
+}
+
+int	check_path(char **original_map, t_map *map_struct, int height, int width)
+{
+	char	**map_copy;
+	int		y, x;
+	int		coins_found = 0;
+	int		exit_found = 0;
+
+	map_copy = copy_map(original_map, height);
+	if (!map_copy)
+		return (ft_printf("Error copying map\n"), 0);
+
+	y = 0;
+	while (y < height)
+	{
+		x = 0;
+		while (x < width)
+		{
+			if (map_copy[y][x] == 'P')
+				break ;
+			x++;
+		}
+		if (x < width)
+			break ;
+		y++;
+	}
+	if (y == height)
+		return (free_map(map_copy), ft_printf("Error: Player not found\n"), 0);
+
+	// Modified flood fill to update counters by reference
+	flood_fill_count(map_copy, y, x, height, width, &coins_found, &exit_found);
+
+	if (coins_found != map_struct->coin || exit_found != 1)
+	{
+		ft_printf("Error: Not all coins or exit reachable. Coins found: %d, Exit found: %d\n",
+			coins_found, exit_found);
+		free_map(map_copy);
+		return (0);
+	}
+	free_map(map_copy);
+	return (1);
+}
+
 int	main(int argc, char **argv)
 {
 	char	*map;
 	t_map	map_struct;
+	char	**lines;
+	int		width;
 
 	map_struct = (t_map){0, 0, 0, 0};
 	if (argc != 2)
@@ -148,13 +247,14 @@ int	main(int argc, char **argv)
 	map = ft_get_map(argv[1]);
 	if (!map)
 		return (free_all_gnl(), 1);
-	ft_printf("%s\n%d\n", map, ft_strlen(map));
 	if (ft_map_check(map, &map_struct) == 1 )
 		return (free(map), free_all_gnl(), 1);
-	char **lines = split_map_into_lines(map);
-	int width = ft_strlen(lines[0]);
-	ft_printf("%d\n", width);
+	ft_printf("%s\n", map);
+	lines = split_map_into_lines(map);
+	width = ft_strlen(lines[0]);
 	if (!is_surrounded_by_walls(lines, map_struct.height, width))
+		return (free(map), free_split(lines), 1);
+	if (!check_path(lines, &map_struct, map_struct.height, width))
 		return (free(map), free_split(lines), 1);
 	free_split(lines);
 	free(map);
