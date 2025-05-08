@@ -6,7 +6,7 @@
 /*   By: omizin <omizin@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:17:42 by omizin            #+#    #+#             */
-/*   Updated: 2025/05/06 12:58:32 by omizin           ###   ########.fr       */
+/*   Updated: 2025/05/08 12:58:11 by omizin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,5 +25,16 @@ typedef struct s_map
 	int	player;
 	int	exit;
 }	t_map;
+
+typedef struct s_map_copy
+{
+	int		height;
+	int		width;
+	int		x;
+	int		y;
+	int		coin;
+	int		exit;
+	char	**map_copy;
+}	t_map_copy;
 
 #endif

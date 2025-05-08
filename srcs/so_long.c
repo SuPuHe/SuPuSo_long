@@ -6,7 +6,7 @@
 /*   By: omizin <omizin@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:18:20 by omizin            #+#    #+#             */
-/*   Updated: 2025/05/07 12:48:34 by omizin           ###   ########.fr       */
+/*   Updated: 2025/05/08 13:27:26 by omizin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,7 +141,7 @@ void	free_map(char **map)
 	int	i;
 
 	if (!map)
-		return;
+		return ;
 	i = 0;
 	while (map[i])
 		free(map[i++]);
@@ -173,71 +173,91 @@ char	**copy_map(char **map, int height)
 	return (copy);
 }
 
-void	flood_fill_count(char **map, int y, int x, int h, int w, int *coins, int *exit)
+void	flood_fill_count(t_map_copy *map_copy, int y, int x)
 {
-	if (y < 0 || y >= h || x < 0 || x >= w)
-		return;
-	if (map[y][x] == '1' || map[y][x] == 'F')
-		return;
-	if (map[y][x] == 'C')
-		(*coins)++;
-	else if (map[y][x] == 'E')
-		(*exit)++;
-	map[y][x] = 'F';
-	flood_fill_count(map, y + 1, x, h, w, coins, exit);
-	flood_fill_count(map, y - 1, x, h, w, coins, exit);
-	flood_fill_count(map, y, x + 1, h, w, coins, exit);
-	flood_fill_count(map, y, x - 1, h, w, coins, exit);
+	if (y < 0 || y >= map_copy->height || x < 0 || x >= map_copy->width)
+		return ;
+	if (map_copy->map_copy[y][x] == '1' || map_copy->map_copy[y][x] == 'F')
+		return ;
+	if (map_copy->map_copy[y][x] == 'C')
+		map_copy->coin++;
+	else if (map_copy->map_copy[y][x] == 'E')
+		map_copy->exit++;
+	map_copy->map_copy[y][x] = 'F';
+	flood_fill_count(map_copy, y + 1, x);
+	flood_fill_count(map_copy, y - 1, x);
+	flood_fill_count(map_copy, y, x + 1);
+	flood_fill_count(map_copy, y, x - 1);
+}
+
+int	check_path_error(t_map_copy *map_copy, t_map *map_struct, int height)
+{
+	if (map_copy->y == height)
+		return (free_map(map_copy->map_copy), ft_printf("Error: Player not found\n"), 0);
+	map_copy->coin = 0;
+	map_copy->exit = 0;
+	flood_fill_count(map_copy, map_copy->y, map_copy->x);
+	if (map_copy->coin != map_struct->coin || map_copy->exit != 1)
+	{
+		ft_printf("Error: Not all coins or exit reachable. Coins found: %d, Exit found: %d\n",
+			map_copy->coin, map_copy->exit);
+		free_map(map_copy->map_copy);
+		return (0);
+	}
+	return (1);
 }
 
 int	check_path(char **original_map, t_map *map_struct, int height, int width)
 {
-	char	**map_copy;
-	int		y, x;
-	int		coins_found = 0;
-	int		exit_found = 0;
+	t_map_copy	map_copy;
 
-	map_copy = copy_map(original_map, height);
-	if (!map_copy)
+	map_copy.map_copy = copy_map(original_map, height);
+	if (!map_copy.map_copy)
 		return (ft_printf("Error copying map\n"), 0);
-
-	y = 0;
-	while (y < height)
+	map_copy.y = 0;
+	map_copy.height = height;
+	map_copy.width = width;
+	while (map_copy.y < height)
 	{
-		x = 0;
-		while (x < width)
+		map_copy.x = 0;
+		while (map_copy.x < width)
 		{
-			if (map_copy[y][x] == 'P')
+			if (map_copy.map_copy[map_copy.y][map_copy.x] == 'P')
 				break ;
-			x++;
+			map_copy.x++;
 		}
-		if (x < width)
+		if (map_copy.x < width)
 			break ;
-		y++;
+		map_copy.y++;
 	}
-	if (y == height)
-		return (free_map(map_copy), ft_printf("Error: Player not found\n"), 0);
-
-	// Modified flood fill to update counters by reference
-	flood_fill_count(map_copy, y, x, height, width, &coins_found, &exit_found);
-
-	if (coins_found != map_struct->coin || exit_found != 1)
-	{
-		ft_printf("Error: Not all coins or exit reachable. Coins found: %d, Exit found: %d\n",
-			coins_found, exit_found);
-		free_map(map_copy);
+	if (check_path_error(&map_copy, map_struct, height) == 0)
 		return (0);
-	}
-	free_map(map_copy);
+	free_map(map_copy.map_copy);
 	return (1);
+}
+
+int	get_input(char *map, t_map *map_struct)
+{
+	char	**lines;
+	int		width;
+
+	if (ft_map_check(map, map_struct) == 1)
+		return (free(map), free_all_gnl(), 1);
+	ft_printf("%s\n", map);
+	lines = split_map_into_lines(map);
+	width = ft_strlen(lines[0]);
+	if (!is_surrounded_by_walls(lines, map_struct->height, width))
+		return (free(map), free_split(lines), 1);
+	if (!check_path(lines, map_struct, map_struct->height, width))
+		return (free(map), free_split(lines), 1);
+	free_split(lines);
+	return (0);
 }
 
 int	main(int argc, char **argv)
 {
 	char	*map;
 	t_map	map_struct;
-	char	**lines;
-	int		width;
 
 	map_struct = (t_map){0, 0, 0, 0};
 	if (argc != 2)
@@ -247,16 +267,8 @@ int	main(int argc, char **argv)
 	map = ft_get_map(argv[1]);
 	if (!map)
 		return (free_all_gnl(), 1);
-	if (ft_map_check(map, &map_struct) == 1 )
-		return (free(map), free_all_gnl(), 1);
-	ft_printf("%s\n", map);
-	lines = split_map_into_lines(map);
-	width = ft_strlen(lines[0]);
-	if (!is_surrounded_by_walls(lines, map_struct.height, width))
-		return (free(map), free_split(lines), 1);
-	if (!check_path(lines, &map_struct, map_struct.height, width))
-		return (free(map), free_split(lines), 1);
-	free_split(lines);
+	if (get_input(map, &map_struct) == 1)
+		return (1);
 	free(map);
 	return (0);
 }
