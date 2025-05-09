@@ -27,7 +27,6 @@ OBJS_DIR = objs
 SRCS_DIR = srcs
 MLX_DIR = ./mlx
 
-MLX_NAME =	$(MLX_DIR)/build/libmlx42.a -ldl -lglfw -pthread -lm
 MLX 	=	$(MLX_DIR)/build/libmlx42.a -ldl -lglfw -pthread -lm
 
 INCLUDE = -I$(INCS_DIR) -I$(SUPULIB_DIR)/libft/includes -I$(SUPULIB_DIR)/ft_printf/includes -I$(SUPULIB_DIR)/get_next_line/includes
@@ -36,7 +35,7 @@ CC = cc
 
 RM = rm -rf
 
-SRCS = so_long.c
+SRCS = so_long.c free_functions.c input_functions.c input_helpers.c
 
 SRCS := $(addprefix $(SRCS_DIR)/, $(SRCS))
 
