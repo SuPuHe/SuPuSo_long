@@ -6,32 +6,44 @@
 /*   By: omizin <omizin@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 20:24:07 by omizin            #+#    #+#             */
-/*   Updated: 2025/05/09 20:25:42 by omizin           ###   ########.fr       */
+/*   Updated: 2025/05/12 14:34:01 by omizin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long.h"
 
-void	free_split(char **lines)
+static void	free_if_not_null(void **ptr)
 {
-	int	i;
-
-	i = 0;
-	while (lines[i])
-		free(lines[i++]);
-	free(lines);
+	if (ptr && *ptr)
+	{
+		free(*ptr);
+		*ptr = NULL;
+	}
 }
 
-void	free_map(char **map)
+void	free_split(char **arr)
 {
 	int	i;
 
-	if (!map)
+	if (!arr)
 		return ;
 	i = 0;
-	while (map[i])
-		free(map[i++]);
-	free(map);
+	while (arr[i])
+	{
+		free_if_not_null((void **)&arr[i]);
+		i++;
+	}
+	free_if_not_null((void **)&arr);
+}
+
+void	cleanup_map(t_map *map)
+{
+	if (!map)
+		return ;
+	free_split(map->map);
+	map->map = NULL;
+	free_split(map->copy_map);
+	map->copy_map = NULL;
 }
 
 void	free_all_gnl(void)

@@ -6,112 +6,104 @@
 /*   By: omizin <omizin@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 20:29:15 by omizin            #+#    #+#             */
-/*   Updated: 2025/05/09 20:43:42 by omizin           ###   ########.fr       */
+/*   Updated: 2025/05/12 14:45:44 by omizin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long.h"
 
-char	**split_map_into_lines(char *map)
-{
-	char	**lines;
-
-	lines = ft_split(map, '\n');
-	return (lines);
-}
-
-char	**copy_map(char **map, int height)
-{
-	char	**copy;
-	int		i;
-
-	copy = malloc(sizeof(char *) * (height + 1));
-	if (!copy)
-		return (NULL);
-	i = 0;
-	while (i < height)
-	{
-		copy[i] = ft_strdup(map[i]);
-		if (!copy[i])
-		{
-			while (--i >= 0)
-				free(copy[i]);
-			free(copy);
-			return (NULL);
-		}
-		i++;
-	}
-	copy[height] = NULL;
-	return (copy);
-}
-
-static char	*read_and_join_lines(int fd, char *first_line, unsigned long width)
+static char	*read_and_join_lines(int fd, char *first_line, t_map *map,
+unsigned long x)
 {
 	char	*line;
 	char	*joined;
 	char	*tmp;
 
-	if (width != ft_strlen(first_line) - 1)
+	if (x != ft_strlen(first_line) - 1)
 		return (free(first_line), NULL);
 	joined = ft_strdup(first_line);
+	map->y++;
 	free(first_line);
 	if (!joined)
 		return (NULL);
 	line = get_next_line(fd);
 	while (line != NULL)
 	{
-		if (width != ft_strlen(line) - 1)
-			return (free(line), free(joined), NULL);
+		if (x != ft_strlen(line) - 1)
+			return (ft_printf("map is assymethric\n"), free(line),
+				free(joined), NULL);
 		tmp = ft_strjoin(joined, line);
 		free(joined);
 		joined = tmp;
+		map->y++;
 		free(line);
 		line = get_next_line(fd);
 	}
 	return (joined);
 }
 
-char	*ft_get_map(char *argv)
+int	ft_get_map(char *argv, t_map *map)
 {
 	int				fd;
 	char			*line;
 	char			*joined;
-	unsigned long	width;
 
 	fd = open(argv, O_RDONLY);
 	if (fd == -1)
-		return (ft_printf("Error with map name/path\n"), NULL);
+		return (ft_printf("Error with map name/path\n"), 1);
 	line = get_next_line(fd);
 	if (!line)
-		return (close(fd), ft_printf("Empty map or read error\n"), NULL);
-	width = ft_strlen(line) - 1;
-	joined = read_and_join_lines(fd, line, width);
+		return (close(fd), ft_printf("Empty map or read error\n"), 1);
+	map->y = 0;
+	map->x = ft_strlen(line) - 1;
+	joined = read_and_join_lines(fd, line, map, map->x);
+	if (!joined)
+		return (close(fd), free_all_gnl(), 1);
+	map->map = ft_split(joined, '\n');
+	map->copy_map = ft_split(joined, '\n');
+	free(joined);
+	if (!map->map || !map->copy_map)
+	{
+		cleanup_map(map);
+		return (1);
+	}
 	close(fd);
-	return (joined);
+	return (0);
 }
 
-int	ft_map_check(char *map, t_map *map_struct)
+static int	ft_map_values_check(t_map *map, int x, int y)
 {
-	int		i;
+	if (map->map[y][x] == 'C')
+		map->coin++;
+	else if (map->map[y][x] == 'P')
+		map->player++;
+	else if (map->map[y][x] == 'E')
+		map->exit++;
+	else if (map->map[y][x] == '0' || map->map[y][x] == '1')
+		;
+	else
+		return (ft_printf("Wrong map |%c|\n", map->map[y][x]), 1);
+	return (0);
+}
 
-	i = 0;
-	while (map[i])
+int	ft_map_check(t_map *map)
+{
+	int	y;
+	int	x;
+
+	y = 0;
+	while (map->map[y])
 	{
-		if (map[i] == 'C')
-			map_struct->coin++;
-		else if (map[i] == 'P')
-			map_struct->player++;
-		else if (map[i] == 'E')
-			map_struct->exit++;
-		else if (map[i] == '\n')
-			map_struct->height++;
-		else if (map[i] == '0' || map[i] == '1' || map[i] == '\r')
-			;
-		else
-			return (ft_printf("Wrong map |%c|\n", map[i]), 1);
-		i++;
+		x = 0;
+		while (map->map[y][x])
+		{
+			if (ft_map_values_check(map, x, y) == 1)
+				return (1);
+			x++;
+		}
+		y++;
 	}
-	if (map_struct->coin < 1 || map_struct->player != 1 || map_struct->exit != 1)
+	if (map->coin < 1 || map->player != 1 || map->exit != 1)
 		return (ft_printf("Error: Incorrect map content \n"), 1);
 	else
 		return (0);
