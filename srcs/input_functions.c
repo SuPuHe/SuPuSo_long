@@ -6,7 +6,7 @@
 /*   By: omizin <omizin@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 20:26:18 by omizin            #+#    #+#             */
-/*   Updated: 2025/05/12 14:38:16 by omizin           ###   ########.fr       */
+/*   Updated: 2025/05/14 10:50:59 by omizin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,8 +83,10 @@ static int	check_path(t_map *map)
 	while (y < map->y)
 	{
 		x = 0;
+		map->player_y = y;
 		while (x < map->x)
 		{
+			map->player_x = x;
 			if (map->copy_map[y][x] == 'P')
 				break ;
 			x++;
@@ -100,8 +102,14 @@ static int	check_path(t_map *map)
 	return (1);
 }
 
-int	get_input(t_map *map)
+int	get_input(t_map *map, char **argv, int argc)
 {
+	if (argc != 2)
+		return (ft_printf("Error: argc is not 2\n"), 1);
+	if (ft_strncmp(&argv[1][ft_strlen(argv[1]) - 4], ".ber", 4) != 0)
+		return (ft_printf("Error: map is not in .ber format\n"), 1);
+	if (ft_get_map(argv[1], map) == 1)
+		return (1);
 	if (ft_map_check(map) || !is_surrounded_by_walls(map) || !check_path(map))
 	{
 		cleanup_map(map);
