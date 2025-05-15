@@ -6,7 +6,7 @@
 /*   By: omizin <omizin@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 20:26:18 by omizin            #+#    #+#             */
-/*   Updated: 2025/05/14 10:50:59 by omizin           ###   ########.fr       */
+/*   Updated: 2025/05/15 21:46:30 by omizin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,7 @@ static int	check_path_error(t_map *map, int x, int y)
 			map->exit_check);
 		return (0);
 	}
+	map->coin_check = 0;
 	return (1);
 }
 
