@@ -6,7 +6,7 @@
 /*   By: omizin <omizin@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 20:26:18 by omizin            #+#    #+#             */
-/*   Updated: 2025/05/15 21:46:30 by omizin           ###   ########.fr       */
+/*   Updated: 2025/05/20 11:39:08 by omizin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ static void	flood_fill_count(t_map *map, int x, int y)
 {
 	if (y < 0 || y >= map->y || x < 0 || x >= map->x)
 		return ;
-	if (map->copy_map[y][x] == '1' || map->copy_map[y][x] == 'F')
+	if (map->copy_map[y][x] == '1' || map->copy_map[y][x] == 'F' || map->copy_map[y][x] == 'B')
 		return ;
 	if (map->copy_map[y][x] == 'C')
 		map->coin_check++;
@@ -101,6 +101,28 @@ static int	check_path(t_map *map)
 	free_split(map->copy_map);
 	map->copy_map = NULL;
 	return (1);
+}
+
+int	count_enemies(char **map)
+{
+	int	enemy;
+	int	x;
+	int	y;
+
+	enemy = 0;
+	y = 0;
+	while (map[y])
+	{
+		x = 0;
+		while (map[y][x])
+		{
+			if (map[y][x] == 'B')
+				enemy++;
+			x++;
+		}
+		y++;
+	}
+	return (enemy);
 }
 
 int	get_input(t_map *map, char **argv, int argc)

@@ -6,7 +6,7 @@
 /*   By: omizin <omizin@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 20:29:15 by omizin            #+#    #+#             */
-/*   Updated: 2025/05/15 22:30:09 by omizin           ###   ########.fr       */
+/*   Updated: 2025/05/20 11:39:15 by omizin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,12 @@ static int	ft_map_values_check(t_map *map, int x, int y)
 		map->player++;
 	else if (map->map[y][x] == 'E')
 		map->exit++;
-	else if (map->map[y][x] == '0' || map->map[y][x] == '1' || map->map[y][x] == 'B')
+	else if (map->map[y][x] == 'B')
+	{
+		map->enemy_x = x;
+		map->enemy_y = y;
+	}
+	else if (map->map[y][x] == '0' || map->map[y][x] == '1')
 		;
 	else
 		return (ft_printf("Wrong map |%c|\n", map->map[y][x]), 1);

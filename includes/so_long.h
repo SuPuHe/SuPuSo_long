@@ -6,7 +6,7 @@
 /*   By: omizin <omizin@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:17:42 by omizin            #+#    #+#             */
-/*   Updated: 2025/05/16 00:13:18 by omizin           ###   ########.fr       */
+/*   Updated: 2025/05/20 14:16:51 by omizin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,16 @@ typedef struct s_texture
 	mlx_texture_t	*enemy;
 }	t_texture;
 
+typedef enum e_state {
+	IDLE,
+	RUNNING
+}	t_state;
+
+typedef enum e_dir {
+	RIGHT,
+	LEFT
+}	t_dir;
+
 typedef struct s_map
 {
 	char	**map;
@@ -49,7 +59,10 @@ typedef struct s_map
 	int		moves;
 	mlx_t	*mlx;
 	//t_img	*img;
-	mlx_texture_t	*player_textures[4];
+	t_state	player_state;
+	t_dir	player_dir;
+	mlx_texture_t	*player_textures[6];
+	mlx_texture_t	*player_run[8];
 	int				player_frame;
 	int				frame_counter;
 	mlx_image_t			*wall;
@@ -58,6 +71,9 @@ typedef struct s_map
 	mlx_image_t			*collectible;
 	mlx_image_t			*exit_img;
 	mlx_image_t			*enemy;
+	int	enemy_x;
+	int	enemy_y;
+	char	enemy_under;
 }	t_map;
 
 void	free_split(char **lines);
