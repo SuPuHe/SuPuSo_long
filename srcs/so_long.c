@@ -258,8 +258,8 @@ int	main(int argc, char **argv)
 	mlx_loop_hook(map->mlx, animate_player, map);
 	mlx_loop(map->mlx);
 	mlx_terminate(map->mlx);
-	delete_images(map);
-	cleanup_map(map);
-	free(map);
+	// delete_images(map);
+	// cleanup_map(map);
+	// free(map);
 	return (0);
 }
