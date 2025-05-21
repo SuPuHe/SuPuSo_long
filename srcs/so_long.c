@@ -201,7 +201,6 @@ void	move_enemy(t_map *map)
 	int dx = 0;
 	int dy = 0;
 
-	// Determine the direction
 	if (map->enemy.x < map->player.x)
 		dx = 1;
 	else if (map->enemy.x > map->player.x)
