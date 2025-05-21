@@ -77,6 +77,15 @@ int	map_render(t_map *map)
 	map->player.textures[4] = mlx_load_png("textures/tile004.png");
 	map->player.textures[5] = mlx_load_png("textures/tile005.png");
 
+	map->player.run[0] = mlx_load_png("textures/run000.png");
+	map->player.run[1] = mlx_load_png("textures/run001.png");
+	map->player.run[2] = mlx_load_png("textures/run002.png");
+	map->player.run[3] = mlx_load_png("textures/run003.png");
+	map->player.run[4] = mlx_load_png("textures/run004.png");
+	map->player.run[5] = mlx_load_png("textures/run005.png");
+	map->player.run[6] = mlx_load_png("textures/run006.png");
+	map->player.run[7] = mlx_load_png("textures/run007.png");
+
 	map->img.player_img = mlx_texture_to_image(map->mlx, map->player.textures[0]);
 	mlx_image_to_window(map->mlx, map->img.player_img,
 		map->player.x * PIXEL, map->player.y * PIXEL);
@@ -187,13 +196,12 @@ void	delete_images(t_map *map)
 		mlx_delete_image(map->mlx, map->img.enemy);
 }
 
-void	move_enemy(void *param)
+void	move_enemy(t_map *map)
 {
-	t_map	*map = (t_map *)param;
-	int		dx = 0;
-	int		dy = 0;
-	char	next_tile;
+	int dx = 0;
+	int dy = 0;
 
+	// Determine the direction
 	if (map->enemy.x < map->player.x)
 		dx = 1;
 	else if (map->enemy.x > map->player.x)
@@ -202,22 +210,23 @@ void	move_enemy(void *param)
 		dy = 1;
 	else if (map->enemy.y > map->player.y)
 		dy = -1;
-	next_tile = map->map[map->enemy.y + dy][map->enemy.x + dx];
-	if (next_tile == '1' || next_tile == 'E')
-		return ;
-	if (map->enemy.under == 'C')
-		mlx_image_to_window(map->mlx, map->img.collectible, map->enemy.x * PIXEL, map->enemy.y * PIXEL);
-	else if (map->enemy.under == 'E')
-		mlx_image_to_window(map->mlx, map->img.exit_img, map->enemy.x * PIXEL, map->enemy.y * PIXEL);
+	if (abs(map->enemy.x - map->player.x) > abs(map->enemy.y - map->player.y))
+		dy = 0;
 	else
-		mlx_image_to_window(map->mlx, map->img.floor, map->enemy.x * PIXEL, map->enemy.y * PIXEL);
+		dx = 0;
+	if (map->map[map->enemy.y + dy][map->enemy.x + dx] == '1')
+		return;
+	if (map->map[map->enemy.y][map->enemy.x] == 'B')
+		map->map[map->enemy.y][map->enemy.x] = '0';
+	mlx_image_to_window(map->mlx, map->img.floor, map->enemy.x * PIXEL, map->enemy.y * PIXEL);
 	map->enemy.x += dx;
 	map->enemy.y += dy;
-	map->enemy.under = map->map[map->enemy.y][map->enemy.x];
 	if (map->enemy.x == map->player.x && map->enemy.y == map->player.y)
 		mlx_close_window(map->mlx);
+	map->map[map->enemy.y][map->enemy.x] = 'B';
 	mlx_image_to_window(map->mlx, map->img.enemy, map->enemy.x * PIXEL, map->enemy.y * PIXEL);
 }
+
 
 void	animate_player(void *param)
 {
