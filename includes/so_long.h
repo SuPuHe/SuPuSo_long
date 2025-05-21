@@ -23,7 +23,7 @@
 
 typedef struct s_texture
 {
-	mlx_texture_t	*player;
+	//mlx_texture_t	*player;
 	mlx_texture_t	*coin;
 	mlx_texture_t	*wall;
 	mlx_texture_t	*floor;
@@ -43,6 +43,37 @@ typedef enum e_dir {
 	LEFT
 }	t_dir;
 
+typedef struct s_img
+{
+	mlx_image_t	*wall;
+	mlx_image_t	*floor;
+	mlx_image_t	*collectible;
+	mlx_image_t	*exit_img;
+	mlx_image_t	*player_img;
+	mlx_image_t	*enemy;
+}	t_img;
+
+typedef struct s_player
+{
+	int				x;
+	int				y;
+	t_state			state;
+	t_dir			dir;
+	int				frame;
+	int				frame_counter;
+	mlx_texture_t	*textures[6];
+	mlx_texture_t	*run[8];
+}	t_player;
+
+typedef struct s_enemy
+{
+	int				x;
+	int				y;
+	char			under;
+	mlx_texture_t	*texture;
+}	t_enemy;
+
+
 typedef struct s_map
 {
 	char	**map;
@@ -50,31 +81,18 @@ typedef struct s_map
 	int		x;
 	int		y;
 	int		coin;
-	int		player;
-	int		player_x;
-	int		player_y;
+	int		player_count;
 	int		exit;
 	int		coin_check;
 	int		exit_check;
 	int		moves;
 	mlx_t	*mlx;
-	//t_img	*img;
-	t_state	player_state;
-	t_dir	player_dir;
-	mlx_texture_t	*player_textures[6];
-	mlx_texture_t	*player_run[8];
-	int				player_frame;
-	int				frame_counter;
-	mlx_image_t			*wall;
-	mlx_image_t			*floor;
-	mlx_image_t			*player_img;
-	mlx_image_t			*collectible;
-	mlx_image_t			*exit_img;
-	mlx_image_t			*enemy;
-	int	enemy_x;
-	int	enemy_y;
-	char	enemy_under;
+
+	t_player	player;
+	t_enemy		enemy;
+	t_img		img;
 }	t_map;
+
 
 void	free_split(char **lines);
 void	free_all_gnl(void);

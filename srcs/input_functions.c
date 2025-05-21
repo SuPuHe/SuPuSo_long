@@ -84,10 +84,10 @@ static int	check_path(t_map *map)
 	while (y < map->y)
 	{
 		x = 0;
-		map->player_y = y;
+		map->player.y = y;
 		while (x < map->x)
 		{
-			map->player_x = x;
+			map->player.x = x;
 			if (map->copy_map[y][x] == 'P')
 				break ;
 			x++;
