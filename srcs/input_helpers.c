@@ -84,7 +84,7 @@ static int	ft_map_values_check(t_map *map, int x, int y)
 		map->enemy.x = x;
 		map->enemy.y = y;
 	}
-	else if (map->map[y][x] == '0' || map->map[y][x] == '1')
+	else if (map->map[y][x] == '0' || map->map[y][x] == '1' || map->map[y][x] == '\r')
 		;
 	else
 		return (ft_printf("Wrong map |%c|\n", map->map[y][x]), 1);

@@ -11,20 +11,22 @@
 /* ************************************************************************** */
 
 #include "so_long.h"
+#include <math.h>
 
 void	delete_textures(t_texture *texture, t_map *map)
 {
-	int	i;
+	// int	i;
 
-	i = 0;
-	while (i < 6)
-	{
-		if (map->player.textures[i])
-			mlx_delete_texture(map->player.textures[i]);
-		i++;
-	}
-	if (texture->enemy)
-		mlx_delete_texture(texture->enemy);
+	// i = 0;
+	map->coin = map->coin;
+	// while (i < 6)
+	// {
+	// 	if (map->player.textures[i])
+	// 		mlx_delete_texture(map->player.textures[i]);
+	// 	i++;
+	// }
+	// if (texture->enemy)
+	// 	mlx_delete_texture(texture->enemy);
 	if (texture->wall)
 		mlx_delete_texture(texture->wall);
 	if (texture->floor)
@@ -59,16 +61,26 @@ int	map_render(t_map *map)
 {
 	t_texture	texture;
 
+	//ft_printf("Map size: %d x %d\n", map->x, map->y);
 	map->mlx = mlx_init(PIXEL * map->x, PIXEL * map->y, "so_long", true);
 	if (!map->mlx)
 		return (1);
 	mlx_set_setting(MLX_STRETCH_IMAGE, true);
 
-	texture.enemy = mlx_load_png("textures/enemy.png");
 	texture.wall = mlx_load_png("textures/wall_imresizer.png");
 	texture.floor = mlx_load_png("textures/floor_imresizer.png");
 	texture.coin = mlx_load_png("textures/coin_imresizer.png");
 	texture.exit = mlx_load_png("textures/player_imresizer_exit.png");
+
+	map->enemy.texture[0] = mlx_load_png("textures/bat1.png");
+	map->enemy.texture[1] = mlx_load_png("textures/bat2.png");
+	map->enemy.texture[2] = mlx_load_png("textures/bat3.png");
+	map->enemy.texture[3] = mlx_load_png("textures/bat4.png");
+
+	map->enemy.mirror[0] = mlx_load_png("textures/bat1_m.png");
+	map->enemy.mirror[1] = mlx_load_png("textures/bat2_m.png");
+	map->enemy.mirror[2] = mlx_load_png("textures/bat3_m.png");
+	map->enemy.mirror[3] = mlx_load_png("textures/bat4_m.png");
 
 	map->player.textures[0] = mlx_load_png("textures/tile000.png");
 	map->player.textures[1] = mlx_load_png("textures/tile001.png");
@@ -90,10 +102,11 @@ int	map_render(t_map *map)
 	mlx_image_to_window(map->mlx, map->img.player_img,
 		map->player.x * PIXEL, map->player.y * PIXEL);
 
-	map->player.frame = 0;
-	map->player.frame_counter = 0;
+	map->img.enemy = mlx_texture_to_image(map->mlx, map->enemy.texture[0]);
+	mlx_image_to_window(map->mlx, map->img.enemy,
+		map->enemy.x * PIXEL, map->enemy.y * PIXEL);
 
-	if (!texture.coin || !texture.exit || !texture.enemy || !texture.floor
+	if (!texture.coin || !texture.exit || !texture.floor
 		|| !map->player.textures[0] || !texture.wall)
 	{
 		delete_textures(&texture, map);
@@ -109,8 +122,6 @@ int	map_render(t_map *map)
 	mlx_delete_texture(texture.coin);
 	map->img.exit_img = mlx_texture_to_image(map->mlx, texture.exit);
 	mlx_delete_texture(texture.exit);
-	map->img.enemy = mlx_texture_to_image(map->mlx, texture.enemy);
-	mlx_delete_texture(texture.enemy);
 
 	if (!map->img.player_img || !map->img.enemy || !map->img.collectible
 		|| !map->img.wall || !map->img.floor || !map->img.exit_img)
@@ -123,43 +134,61 @@ int	map_render(t_map *map)
 	for (int i = 0; i < map->y; i++)
 		for (int j = 0; j < map->x; j++)
 			img_loading(map, i, j);
+
+	map->player.frame = 0;
+	map->player.frame_counter = 0;
+	map->player.pixel_x = map->player.x * PIXEL;
+	map->player.pixel_y = map->player.y * PIXEL;
+	map->player.target_pixel_x = map->player.pixel_x;
+	map->player.target_pixel_y = map->player.pixel_y;
+	map->player.is_moving = 0;
+	map->player.move_speed = 2;
+	map->player.state = IDLE;
+
+	map->enemy.pixel_x = map->enemy.x * PIXEL;
+	map->enemy.pixel_y = map->enemy.y * PIXEL;
+	map->enemy.target_pixel_x = map->enemy.pixel_x;
+	map->enemy.target_pixel_y = map->enemy.pixel_y;
+	map->enemy.is_moving = 0;
+	map->enemy.move_speed = 2;
+	map->enemy.frame = 0;
+	map->enemy.frame_counter = 0;
+	map->enemy.dir = RIGHT;
 	return (0);
 }
 
-void	move_player(t_map *map, int x, int y)
+void	move_player(t_map *map, int dx, int dy)
 {
-	ft_printf("Moves: %d\n", ++map->moves);
-	if (map->map[map->player.y + y][map->player.x + x] == '1')
-		return ;
-	if (map->map[map->player.y + y][map->player.x + x] == 'E'
+	if (map->player.is_moving)
+		return;
+	if (map->map[map->player.y + dy][map->player.x + dx] == '1')
+		return;
+	map->player.state = RUN;
+	map->player.target_pixel_x = (map->player.x + dx) * PIXEL;
+	map->player.target_pixel_y = (map->player.y + dy) * PIXEL;
+	map->player.is_moving = 1;
+	map->player.x += dx;
+	map->player.y += dy;
+	map->moves++;
+	ft_printf("Moves: %d\n", map->moves);
+
+	if (map->map[map->player.y][map->player.x] == 'C')
+	{
+		mlx_image_to_window(map->mlx, map->img.floor,
+			map->player.x * PIXEL, map->player.y * PIXEL);
+		map->coin_check++;
+	}
+
+	if (map->map[map->player.y][map->player.x] == 'E'
 		&& map->coin_check == map->coin)
 	{
 		ft_printf("WIN\n");
 		mlx_close_window(map->mlx);
 	}
-	if (map->map[map->player.y + y][map->player.x + x] == 'B')
+	else if (map->map[map->player.y][map->player.x] == 'B')
 		mlx_close_window(map->mlx);
-	if (map->map[map->player.y + y][map->player.x + x] == 'C')
-	{
-		map->coin_check++;
-		mlx_image_to_window(map->mlx, map->img.floor,
-			(map->player.x + x) * PIXEL, (map->player.y + y) * PIXEL);
-	}
-	// if (map->map[map->player.y][map->player.x] == 'E')
-	// 	mlx_image_to_window(map->mlx, map->img.exit_img,
-	// 		map->player.x * PIXEL, map->player.y * PIXEL);
-	// else
-	// 	mlx_image_to_window(map->mlx, map->img.floor,
-	// 		map->player.x * PIXEL, map->player.y * PIXEL);
-	mlx_delete_image(map->mlx, map->img.player_img);
-	map->img.player_img = mlx_texture_to_image(map->mlx, map->player.textures[0]);
-	map->player.x += x;
-	map->player.y += y;
-	if (map->map[map->player.y][map->player.x] != 'E')
-		map->map[map->player.y][map->player.x] = 'P';
-	mlx_image_to_window(map->mlx, map->img.player_img,
-		map->player.x * PIXEL, map->player.y * PIXEL);
-	ft_printf("PLAYER x: %d, y: %d\n", map->player.x, map->player.y);
+
+	map->map[map->player.y][map->player.x] = 'P';
 }
 
 void	key_handler(mlx_key_data_t keydata, void *param)
@@ -167,8 +196,8 @@ void	key_handler(mlx_key_data_t keydata, void *param)
 	t_map	*map;
 
 	map = (t_map *)param;
-	if (keydata.action != MLX_PRESS)
-		return ;
+	// if (keydata.action != MLX_PRESS)
+	// 	return ;
 	if (keydata.key == MLX_KEY_ESCAPE)
 		mlx_close_window(map->mlx);
 	if (keydata.key == MLX_KEY_W || keydata.key == MLX_KEY_UP)
@@ -199,53 +228,151 @@ void	delete_images(t_map *map)
 
 void	move_enemy(t_map *map)
 {
-	int dx = 0;
-	int dy = 0;
+	t_enemy	*e = &map->enemy;
+	int		dx = 0;
+	int		dy = 0;
 
-	if (map->enemy.x < map->player.x)
+	if (e->is_moving)
+		return;
+
+	if (e->x < map->player.x)
 		dx = 1;
-	else if (map->enemy.x > map->player.x)
+	else if (e->x > map->player.x)
 		dx = -1;
-	if (map->enemy.y < map->player.y)
+	if (e->y < map->player.y)
 		dy = 1;
-	else if (map->enemy.y > map->player.y)
+	else if (e->y > map->player.y)
 		dy = -1;
-	if (abs(map->enemy.x - map->player.x) > abs(map->enemy.y - map->player.y))
+	if (abs(e->x - map->player.x) > abs(e->y - map->player.y))
 		dy = 0;
 	else
 		dx = 0;
-	if (map->map[map->enemy.y + dy][map->enemy.x + dx] == '1')
+
+	// Collision check
+	if (map->map[e->y + dy][e->x + dx] == '1')
 		return;
-	if (map->map[map->enemy.y][map->enemy.x] == 'B')
-		map->map[map->enemy.y][map->enemy.x] = '0';
-	mlx_image_to_window(map->mlx, map->img.floor, map->enemy.x * PIXEL, map->enemy.y * PIXEL);
-	map->enemy.x += dx;
-	map->enemy.y += dy;
-	if (map->enemy.x == map->player.x && map->enemy.y == map->player.y)
+
+	// Clear old map position
+	if (map->map[e->y][e->x] == 'B')
+		map->map[e->y][e->x] = e->under;
+
+	e->under = map->map[e->y + dy][e->x + dx];
+	e->x += dx;
+	e->y += dy;
+
+	// Check collision with player
+	if (e->x == map->player.x && e->y == map->player.y)
 		mlx_close_window(map->mlx);
-	map->map[map->enemy.y][map->enemy.x] = 'B';
-	mlx_image_to_window(map->mlx, map->img.enemy, map->enemy.x * PIXEL, map->enemy.y * PIXEL);
+
+	map->map[e->y][e->x] = 'B';
+
+	e->target_pixel_x = e->x * PIXEL;
+	e->target_pixel_y = e->y * PIXEL;
+	e->is_moving = 1;
+
+	// Optional: update direction (if using mirror textures)
+	if (dx < 0)
+		e->dir = LEFT;
+	else if (dx > 0)
+		e->dir = RIGHT;
+}
+
+void	animate_enemy(void *param)
+{
+	t_map	*map = (t_map *)param;
+	t_enemy *e = &map->enemy;
+	mlx_texture_t **anim = (e->dir == LEFT) ? e->mirror : e->texture;
+
+	// Smooth position movement
+	if (e->is_moving)
+	{
+		if (e->pixel_x < e->target_pixel_x)
+			e->pixel_x += e->move_speed;
+		else if (e->pixel_x > e->target_pixel_x)
+			e->pixel_x -= e->move_speed;
+
+		if (e->pixel_y < e->target_pixel_y)
+			e->pixel_y += e->move_speed;
+		else if (e->pixel_y > e->target_pixel_y)
+			e->pixel_y -= e->move_speed;
+
+		if (abs(e->pixel_x - e->target_pixel_x) <= e->move_speed &&
+			abs(e->pixel_y - e->target_pixel_y) <= e->move_speed)
+		{
+			e->pixel_x = e->target_pixel_x;
+			e->pixel_y = e->target_pixel_y;
+			e->is_moving = 0;
+		}
+	}
+
+	// Animation frame update
+	e->frame_counter++;
+	if (e->frame_counter > 25)
+	{
+		e->frame_counter = 0;
+		e->frame++;
+		if (e->frame >= 4)
+			e->frame = 0;
+	}
+
+	// Draw animation
+	mlx_delete_image(map->mlx, map->img.enemy);
+	map->img.enemy = mlx_texture_to_image(map->mlx, anim[e->frame]);
+	mlx_image_to_window(map->mlx, map->img.enemy, e->pixel_x, e->pixel_y);
 }
 
 
 void	animate_player(void *param)
 {
 	t_map	*map = (t_map *)param;
+	t_player *p = &map->player;
+	mlx_texture_t **anim = (p->state == RUN) ? p->run : p->textures;
+	int max_frames = (p->state == RUN) ? 8 : 6;
 
-	map->player.frame_counter++;
-	if (map->player.frame_counter < 10)
-		return ;
-	map->player.frame_counter = 0;
-	map->player.frame++;
-	if (map->player.frame >= 6)
-		map->player.frame = 0;
+	// Smooth movement
+	if (p->is_moving)
+	{
+		if (p->pixel_x < p->target_pixel_x)
+			p->pixel_x += p->move_speed;
+		else if (p->pixel_x > p->target_pixel_x)
+			p->pixel_x -= p->move_speed;
+		if (p->pixel_y < p->target_pixel_y)
+			p->pixel_y += p->move_speed;
+		else if (p->pixel_y > p->target_pixel_y)
+			p->pixel_y -= p->move_speed;
+
+		if (abs(p->pixel_x - p->target_pixel_x) <= p->move_speed &&
+			abs(p->pixel_y - p->target_pixel_y) <= p->move_speed)
+		{
+			p->pixel_x = p->target_pixel_x;
+			p->pixel_y = p->target_pixel_y;
+			p->is_moving = 0;
+			p->state = IDLE; // Switch to idle after movement ends
+		}
+	}
+
+	// Frame animation
+	p->frame_counter++;
+	if (p->frame_counter > 25)
+	{
+		p->frame_counter = 0;
+		p->frame++;
+		if (p->frame >= max_frames)
+			p->frame = 0;
+	}
+
+	// Draw correct frame
 	mlx_delete_image(map->mlx, map->img.player_img);
-	map->img.player_img = mlx_texture_to_image(map->mlx,
-		map->player.textures[map->player.frame]);
-	mlx_image_to_window(map->mlx, map->img.player_img,
-		map->player.x * PIXEL, map->player.y * PIXEL);
-	//move_enemy(map);
+	map->img.player_img = mlx_texture_to_image(map->mlx, anim[p->frame]);
+	mlx_image_to_window(map->mlx, map->img.player_img, p->pixel_x, p->pixel_y);
+	static int move_timer = 0;
+	if (++move_timer > 50)
+	{
+		move_enemy(map);
+		move_timer = 0;
+	}
 }
+
 
 int	main(int argc, char **argv)
 {
@@ -265,6 +392,7 @@ int	main(int argc, char **argv)
 	}
 	mlx_key_hook(map->mlx, key_handler, map);
 	mlx_loop_hook(map->mlx, animate_player, map);
+	//mlx_loop_hook(map->mlx, animate_enemy, map);
 	mlx_loop(map->mlx);
 	mlx_terminate(map->mlx);
 	delete_images(map);

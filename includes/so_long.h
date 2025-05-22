@@ -30,12 +30,12 @@ typedef struct s_texture
 	mlx_texture_t	*exit;
 	mlx_texture_t	*win;
 	mlx_texture_t	*lose;
-	mlx_texture_t	*enemy;
+	//mlx_texture_t	*enemy;
 }	t_texture;
 
 typedef enum e_state {
 	IDLE,
-	RUNNING
+	RUN
 }	t_state;
 
 typedef enum e_dir {
@@ -57,6 +57,12 @@ typedef struct s_player
 {
 	int				x;
 	int				y;
+	int				pixel_x;
+	int				pixel_y;
+	int				target_pixel_x;
+	int				target_pixel_y;
+	int				is_moving;
+	int				move_speed;
 	t_state			state;
 	t_dir			dir;
 	int				frame;
@@ -65,12 +71,23 @@ typedef struct s_player
 	mlx_texture_t	*run[8];
 }	t_player;
 
+
 typedef struct s_enemy
 {
 	int				x;
 	int				y;
 	char			under;
-	mlx_texture_t	*texture;
+	int				pixel_x;
+	int				pixel_y;
+	int				target_pixel_x;
+	int				target_pixel_y;
+	int				is_moving;
+	int				move_speed;
+	int				frame;
+	int				frame_counter;
+	t_dir			dir;
+	mlx_texture_t	*texture[4];
+	mlx_texture_t	*mirror[4];
 }	t_enemy;
 
 
