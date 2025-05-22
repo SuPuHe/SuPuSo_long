@@ -6,7 +6,7 @@
 /*   By: omizin <omizin@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:18:20 by omizin            #+#    #+#             */
-/*   Updated: 2025/05/20 14:12:53 by omizin           ###   ########.fr       */
+/*   Updated: 2025/05/22 13:51:29 by omizin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,13 +145,14 @@ void	move_player(t_map *map, int x, int y)
 		mlx_image_to_window(map->mlx, map->img.floor,
 			(map->player.x + x) * PIXEL, (map->player.y + y) * PIXEL);
 	}
-	if (map->map[map->player.y][map->player.x] == 'E')
-		mlx_image_to_window(map->mlx, map->img.exit_img,
-			map->player.x * PIXEL, map->player.y * PIXEL);
-	else
-		mlx_image_to_window(map->mlx, map->img.floor,
-			map->player.x * PIXEL, map->player.y * PIXEL);
-
+	// if (map->map[map->player.y][map->player.x] == 'E')
+	// 	mlx_image_to_window(map->mlx, map->img.exit_img,
+	// 		map->player.x * PIXEL, map->player.y * PIXEL);
+	// else
+	// 	mlx_image_to_window(map->mlx, map->img.floor,
+	// 		map->player.x * PIXEL, map->player.y * PIXEL);
+	mlx_delete_image(map->mlx, map->img.player_img);
+	map->img.player_img = mlx_texture_to_image(map->mlx, map->player.textures[0]);
 	map->player.x += x;
 	map->player.y += y;
 	if (map->map[map->player.y][map->player.x] != 'E')
@@ -201,7 +202,6 @@ void	move_enemy(t_map *map)
 	int dx = 0;
 	int dy = 0;
 
-	// Determine the direction
 	if (map->enemy.x < map->player.x)
 		dx = 1;
 	else if (map->enemy.x > map->player.x)
@@ -233,7 +233,7 @@ void	animate_player(void *param)
 	t_map	*map = (t_map *)param;
 
 	map->player.frame_counter++;
-	if (map->player.frame_counter < 100)
+	if (map->player.frame_counter < 10)
 		return ;
 	map->player.frame_counter = 0;
 	map->player.frame++;
@@ -244,7 +244,7 @@ void	animate_player(void *param)
 		map->player.textures[map->player.frame]);
 	mlx_image_to_window(map->mlx, map->img.player_img,
 		map->player.x * PIXEL, map->player.y * PIXEL);
-	move_enemy(map);
+	//move_enemy(map);
 }
 
 int	main(int argc, char **argv)
