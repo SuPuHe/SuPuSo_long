@@ -6,7 +6,7 @@
 /*   By: omizin <omizin@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:18:20 by omizin            #+#    #+#             */
-/*   Updated: 2025/05/22 13:51:29 by omizin           ###   ########.fr       */
+/*   Updated: 2025/05/23 12:07:53 by omizin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,20 +41,37 @@ void	img_loading(t_map *map, int i, int j)
 {
 	int	x;
 	int	y;
+	uint32_t	idx;
 
 	x = j * PIXEL;
 	y = i * PIXEL;
-	mlx_image_to_window(map->mlx, map->img.floor, x, y);
+	idx = mlx_image_to_window(map->mlx, map->img.floor, x, y);
+	map->img.floor->instances[idx].z = 0;
 	if (map->map[i][j] == 'P')
-		mlx_image_to_window(map->mlx, map->img.player_img, x, y);
+	{
+		idx = mlx_image_to_window(map->mlx, map->img.player_img, x, y);
+		//map->img.player_img->instances[idx].z = 1;
+	}
 	else if (map->map[i][j] == '1')
-		mlx_image_to_window(map->mlx, map->img.wall, x, y);
+	{
+		idx = mlx_image_to_window(map->mlx, map->img.wall, x, y);
+		map->img.wall->instances[idx].z = 1;
+	}
 	else if (map->map[i][j] == 'C')
-		mlx_image_to_window(map->mlx, map->img.collectible, x, y);
+	{
+		idx = mlx_image_to_window(map->mlx, map->img.collectible, x, y);
+		map->img.collectible->instances[idx].z = 1;
+	}
 	else if (map->map[i][j] == 'E')
-		mlx_image_to_window(map->mlx, map->img.exit_img, x, y);
+	{
+		idx = mlx_image_to_window(map->mlx, map->img.exit_img, x, y);
+		map->img.exit_img->instances[idx].z = 1;
+	}
 	else if (map->map[i][j] == 'B')
-		mlx_image_to_window(map->mlx, map->img.enemy, x, y);
+	{
+		idx = mlx_image_to_window(map->mlx, map->img.enemy, x, y);
+		map->img.enemy->instances[idx].z = 2;
+	}
 }
 
 int	map_render(t_map *map)
@@ -99,20 +116,22 @@ int	map_render(t_map *map)
 	map->player.run[7] = mlx_load_png("textures/run007.png");
 
 	map->img.player_img = mlx_texture_to_image(map->mlx, map->player.textures[0]);
-	mlx_image_to_window(map->mlx, map->img.player_img,
-		map->player.x * PIXEL, map->player.y * PIXEL);
+	//  mlx_image_to_window(map->mlx, map->img.player_img,
+	// 	map->player.x * PIXEL, map->player.y * PIXEL);
+	// mlx_set_instance_depth(map->img.player_img->instances, 1);
 
 	map->img.enemy = mlx_texture_to_image(map->mlx, map->enemy.texture[0]);
-	mlx_image_to_window(map->mlx, map->img.enemy,
-		map->enemy.x * PIXEL, map->enemy.y * PIXEL);
+	//  mlx_image_to_window(map->mlx, map->img.enemy,
+	//  	map->enemy.x * PIXEL, map->enemy.y * PIXEL);
+	// mlx_set_instance_depth(map->img.enemy->instances, 2);
 
-	if (!texture.coin || !texture.exit || !texture.floor
-		|| !map->player.textures[0] || !texture.wall)
-	{
-		delete_textures(&texture, map);
-		mlx_terminate(map->mlx);
-		return (1);
-	}
+	// if (!texture.coin || !texture.exit || !texture.floor
+	// 	|| !map->player.textures[0] || !texture.wall)
+	// {
+	// 	delete_textures(&texture, map);
+	// 	mlx_terminate(map->mlx);
+	// 	return (1);
+	// }
 
 	map->img.wall = mlx_texture_to_image(map->mlx, texture.wall);
 	mlx_delete_texture(texture.wall);
@@ -123,17 +142,26 @@ int	map_render(t_map *map)
 	map->img.exit_img = mlx_texture_to_image(map->mlx, texture.exit);
 	mlx_delete_texture(texture.exit);
 
-	if (!map->img.player_img || !map->img.enemy || !map->img.collectible
-		|| !map->img.wall || !map->img.floor || !map->img.exit_img)
-	{
-		delete_textures(&texture, map);
-		mlx_terminate(map->mlx);
-		return (1);
-	}
+	// if (!map->img.player_img || !map->img.enemy || !map->img.collectible
+	// 	|| !map->img.wall || !map->img.floor || !map->img.exit_img)
+	// {
+	// 	delete_textures(&texture, map);
+	// 	mlx_terminate(map->mlx);
+	// 	return (1);
+	// }
 
-	for (int i = 0; i < map->y; i++)
-		for (int j = 0; j < map->x; j++)
+	int i, j;
+	i = 0;
+	while (map->map[i])
+	{
+		j = 0;
+		while(map->map[i][j])
+		{
 			img_loading(map, i, j);
+			j++;
+		}
+		i++;
+	}
 
 	map->player.frame = 0;
 	map->player.frame_counter = 0;
@@ -142,7 +170,7 @@ int	map_render(t_map *map)
 	map->player.target_pixel_x = map->player.pixel_x;
 	map->player.target_pixel_y = map->player.pixel_y;
 	map->player.is_moving = 0;
-	map->player.move_speed = 2;
+	map->player.move_speed = 3;
 	map->player.state = IDLE;
 
 	map->enemy.pixel_x = map->enemy.x * PIXEL;
@@ -159,6 +187,8 @@ int	map_render(t_map *map)
 
 void	move_player(t_map *map, int dx, int dy)
 {
+	//uint32_t	idx;
+
 	if (map->player.is_moving)
 		return;
 	if (map->map[map->player.y + dy][map->player.x + dx] == '1')
@@ -176,6 +206,7 @@ void	move_player(t_map *map, int dx, int dy)
 	{
 		mlx_image_to_window(map->mlx, map->img.floor,
 			map->player.x * PIXEL, map->player.y * PIXEL);
+		//map->img.floor->instances[idx].z = 1;
 		map->coin_check++;
 	}
 
@@ -282,6 +313,7 @@ void	animate_enemy(void *param)
 	t_map	*map = (t_map *)param;
 	t_enemy *e = &map->enemy;
 	mlx_texture_t **anim = (e->dir == LEFT) ? e->mirror : e->texture;
+	uint32_t idx;
 
 	// Smooth position movement
 	if (e->is_moving)
@@ -318,7 +350,8 @@ void	animate_enemy(void *param)
 	// Draw animation
 	mlx_delete_image(map->mlx, map->img.enemy);
 	map->img.enemy = mlx_texture_to_image(map->mlx, anim[e->frame]);
-	mlx_image_to_window(map->mlx, map->img.enemy, e->pixel_x, e->pixel_y);
+	idx = mlx_image_to_window(map->mlx, map->img.enemy, e->pixel_x, e->pixel_y);
+	map->img.enemy->instances[idx].z = 2;
 }
 
 
@@ -328,8 +361,10 @@ void	animate_player(void *param)
 	t_player *p = &map->player;
 	mlx_texture_t **anim = (p->state == RUN) ? p->run : p->textures;
 	int max_frames = (p->state == RUN) ? 8 : 6;
+	uint32_t idx;
 
 	// Smooth movement
+
 	if (p->is_moving)
 	{
 		if (p->pixel_x < p->target_pixel_x)
@@ -364,9 +399,10 @@ void	animate_player(void *param)
 	// Draw correct frame
 	mlx_delete_image(map->mlx, map->img.player_img);
 	map->img.player_img = mlx_texture_to_image(map->mlx, anim[p->frame]);
-	mlx_image_to_window(map->mlx, map->img.player_img, p->pixel_x, p->pixel_y);
+	idx = mlx_image_to_window(map->mlx, map->img.player_img, p->pixel_x, p->pixel_y);
+	//map->img.player_img->instances[idx].z = 1;
 	static int move_timer = 0;
-	if (++move_timer > 50)
+	if (++move_timer > 1)
 	{
 		move_enemy(map);
 		move_timer = 0;
@@ -392,7 +428,7 @@ int	main(int argc, char **argv)
 	}
 	mlx_key_hook(map->mlx, key_handler, map);
 	mlx_loop_hook(map->mlx, animate_player, map);
-	//mlx_loop_hook(map->mlx, animate_enemy, map);
+	mlx_loop_hook(map->mlx, animate_enemy, map);
 	mlx_loop(map->mlx);
 	mlx_terminate(map->mlx);
 	delete_images(map);
