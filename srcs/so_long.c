@@ -6,7 +6,7 @@
 /*   By: omizin <omizin@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:18:20 by omizin            #+#    #+#             */
-/*   Updated: 2025/05/23 12:07:53 by omizin           ###   ########.fr       */
+/*   Updated: 2025/05/23 16:25:54 by omizin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,7 @@ void	img_loading(t_map *map, int i, int j)
 	{
 		idx = mlx_image_to_window(map->mlx, map->img.collectible, x, y);
 		map->img.collectible->instances[idx].z = 1;
+		map->img.coin_instances[i][j] = idx;
 	}
 	else if (map->map[i][j] == 'E')
 	{
@@ -83,6 +84,14 @@ int	map_render(t_map *map)
 	if (!map->mlx)
 		return (1);
 	mlx_set_setting(MLX_STRETCH_IMAGE, true);
+
+	map->img.coin_instances = malloc(sizeof(uint32_t *) * map->y);
+	for (int i = 0; i < map->y; i++)
+	{
+		map->img.coin_instances[i] = malloc(sizeof(uint32_t) * map->x);
+		for (int j = 0; j < map->x; j++)
+			map->img.coin_instances[i][j] = UINT32_MAX; // invalid default
+	}
 
 	texture.wall = mlx_load_png("textures/wall_imresizer.png");
 	texture.floor = mlx_load_png("textures/floor_imresizer.png");
@@ -114,6 +123,15 @@ int	map_render(t_map *map)
 	map->player.run[5] = mlx_load_png("textures/run005.png");
 	map->player.run[6] = mlx_load_png("textures/run006.png");
 	map->player.run[7] = mlx_load_png("textures/run007.png");
+
+	map->player.run_left[0] = mlx_load_png("textures/run000_m.png");
+	map->player.run_left[1] = mlx_load_png("textures/run001_m.png");
+	map->player.run_left[2] = mlx_load_png("textures/run002_m.png");
+	map->player.run_left[3] = mlx_load_png("textures/run003_m.png");
+	map->player.run_left[4] = mlx_load_png("textures/run004_m.png");
+	map->player.run_left[5] = mlx_load_png("textures/run005_m.png");
+	map->player.run_left[6] = mlx_load_png("textures/run006_m.png");
+	map->player.run_left[7] = mlx_load_png("textures/run007_m.png");
 
 	map->img.player_img = mlx_texture_to_image(map->mlx, map->player.textures[0]);
 	//  mlx_image_to_window(map->mlx, map->img.player_img,
@@ -187,7 +205,7 @@ int	map_render(t_map *map)
 
 void	move_player(t_map *map, int dx, int dy)
 {
-	//uint32_t	idx;
+	uint32_t	coin_idx;
 
 	if (map->player.is_moving)
 		return;
@@ -204,12 +222,12 @@ void	move_player(t_map *map, int dx, int dy)
 
 	if (map->map[map->player.y][map->player.x] == 'C')
 	{
-		mlx_image_to_window(map->mlx, map->img.floor,
-			map->player.x * PIXEL, map->player.y * PIXEL);
-		//map->img.floor->instances[idx].z = 1;
-		map->coin_check++;
-	}
+		coin_idx = map->img.coin_instances[map->player.y][map->player.x];
+		map->img.collectible->instances[coin_idx].enabled = false;
 
+		map->coin_check++;
+		map->map[map->player.y][map->player.x] = '0';
+	}
 	if (map->map[map->player.y][map->player.x] == 'E'
 		&& map->coin_check == map->coin)
 	{
@@ -229,16 +247,30 @@ void	key_handler(mlx_key_data_t keydata, void *param)
 	map = (t_map *)param;
 	// if (keydata.action != MLX_PRESS)
 	// 	return ;
+	if (map->player.is_moving)
+		return ;
 	if (keydata.key == MLX_KEY_ESCAPE)
 		mlx_close_window(map->mlx);
 	if (keydata.key == MLX_KEY_W || keydata.key == MLX_KEY_UP)
+	{
+		map->player.dir = RIGHT;
 		move_player(map, 0, -1);
+	}
 	if (keydata.key == MLX_KEY_S || keydata.key == MLX_KEY_DOWN)
+	{
+		map->player.dir = RIGHT;
 		move_player(map, 0, 1);
+	}
 	if (keydata.key == MLX_KEY_A || keydata.key == MLX_KEY_LEFT)
+	{
+		map->player.dir = LEFT;
 		move_player(map, -1, 0);
+	}
 	if (keydata.key == MLX_KEY_D || keydata.key == MLX_KEY_RIGHT)
+	{
+		map->player.dir = RIGHT;
 		move_player(map, 1, 0);
+	}
 }
 
 void	delete_images(t_map *map)
@@ -360,8 +392,10 @@ void	animate_player(void *param)
 	t_map	*map = (t_map *)param;
 	t_player *p = &map->player;
 	mlx_texture_t **anim = (p->state == RUN) ? p->run : p->textures;
+	if (p->dir == LEFT && p->state == RUN)
+		anim = p->run_left;
 	int max_frames = (p->state == RUN) ? 8 : 6;
-	uint32_t idx;
+	//uint32_t idx;
 
 	// Smooth movement
 
@@ -399,7 +433,7 @@ void	animate_player(void *param)
 	// Draw correct frame
 	mlx_delete_image(map->mlx, map->img.player_img);
 	map->img.player_img = mlx_texture_to_image(map->mlx, anim[p->frame]);
-	idx = mlx_image_to_window(map->mlx, map->img.player_img, p->pixel_x, p->pixel_y);
+	mlx_image_to_window(map->mlx, map->img.player_img, p->pixel_x, p->pixel_y);
 	//map->img.player_img->instances[idx].z = 1;
 	static int move_timer = 0;
 	if (++move_timer > 1)

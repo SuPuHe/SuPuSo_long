@@ -6,7 +6,7 @@
 /*   By: omizin <omizin@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/05 10:17:42 by omizin            #+#    #+#             */
-/*   Updated: 2025/05/22 13:51:31 by omizin           ###   ########.fr       */
+/*   Updated: 2025/05/23 16:05:07 by omizin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ typedef struct s_img
 	mlx_image_t	*exit_img;
 	mlx_image_t	*player_img;
 	mlx_image_t	*enemy;
+	uint32_t	**coin_instances;
 }	t_img;
 
 typedef struct s_player
@@ -69,6 +70,7 @@ typedef struct s_player
 	int				frame_counter;
 	mlx_texture_t	*textures[6];
 	mlx_texture_t	*run[8];
+	mlx_texture_t	*run_left[8];
 }	t_player;
 
 
