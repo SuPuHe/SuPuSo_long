@@ -28,6 +28,7 @@ typedef struct s_texture
 	mlx_texture_t	*wall;
 	mlx_texture_t	*floor;
 	mlx_texture_t	*exit;
+	mlx_texture_t	*exit_open;
 	mlx_texture_t	*win;
 	mlx_texture_t	*lose;
 	//mlx_texture_t	*enemy;
@@ -49,6 +50,7 @@ typedef struct s_img
 	mlx_image_t	*floor;
 	mlx_image_t	*collectible;
 	mlx_image_t	*exit_img;
+	mlx_image_t	*exit_open;
 	mlx_image_t	*player_img;
 	mlx_image_t	*enemy;
 	uint32_t	**coin_instances;

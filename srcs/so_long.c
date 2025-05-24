@@ -66,7 +66,9 @@ void	img_loading(t_map *map, int i, int j)
 	else if (map->map[i][j] == 'E')
 	{
 		idx = mlx_image_to_window(map->mlx, map->img.exit_img, x, y);
-		map->img.exit_img->instances[idx].z = 1;
+		map->img.exit_img->instances[idx].z = 2;
+		idx = mlx_image_to_window(map->mlx, map->img.exit_open, x, y);
+		map->img.exit_open->instances[idx].z = 1;
 	}
 	else if (map->map[i][j] == 'B')
 	{
@@ -93,10 +95,11 @@ int	map_render(t_map *map)
 			map->img.coin_instances[i][j] = UINT32_MAX; // invalid default
 	}
 
-	texture.wall = mlx_load_png("textures/wall_imresizer.png");
-	texture.floor = mlx_load_png("textures/floor_imresizer.png");
-	texture.coin = mlx_load_png("textures/coin_imresizer.png");
-	texture.exit = mlx_load_png("textures/player_imresizer_exit.png");
+	texture.wall = mlx_load_png("textures/wall_dungeon.png");
+	texture.floor = mlx_load_png("textures/floor_dungeon2.png");
+	texture.coin = mlx_load_png("textures/key2.png");
+	texture.exit = mlx_load_png("textures/stairs_closed.png");
+	texture.exit_open = mlx_load_png("textures/stairs2.png");
 
 	map->enemy.texture[0] = mlx_load_png("textures/bat1.png");
 	map->enemy.texture[1] = mlx_load_png("textures/bat2.png");
@@ -159,6 +162,8 @@ int	map_render(t_map *map)
 	mlx_delete_texture(texture.coin);
 	map->img.exit_img = mlx_texture_to_image(map->mlx, texture.exit);
 	mlx_delete_texture(texture.exit);
+	map->img.exit_open = mlx_texture_to_image(map->mlx, texture.exit_open);
+	mlx_delete_texture(texture.exit_open);
 
 	// if (!map->img.player_img || !map->img.enemy || !map->img.collectible
 	// 	|| !map->img.wall || !map->img.floor || !map->img.exit_img)
@@ -227,6 +232,8 @@ void	move_player(t_map *map, int dx, int dy)
 
 		map->coin_check++;
 		map->map[map->player.y][map->player.x] = '0';
+		if (map->coin_check == map->coin)
+			mlx_delete_image(map->mlx, map->img.exit_img);
 	}
 	if (map->map[map->player.y][map->player.x] == 'E'
 		&& map->coin_check == map->coin)
@@ -444,6 +451,29 @@ void	animate_player(void *param)
 }
 
 
+void	cleanup_mapp(t_map *map)
+{
+	int	i;
+
+	if (!map)
+		return;
+	if (map->map)
+	{
+		for (i = 0; map->map[i]; i++)
+			free(map->map[i]);
+		free(map->map);
+	}
+	if (map->img.coin_instances)
+	{
+		for (i = 0; i < map->y; i++)
+			free(map->img.coin_instances[i]);
+		free(map->img.coin_instances);
+	}
+	// if (map->mlx)
+	// 	mlx_terminate(map->mlx);
+	// delete_textures(&map->img, map);
+}
+
 int	main(int argc, char **argv)
 {
 	t_map	*map;
@@ -456,7 +486,7 @@ int	main(int argc, char **argv)
 	if (map_render(map) == 1)
 	{
 		delete_images(map);
-		cleanup_map(map);
+		cleanup_mapp(map);
 		free(map);
 		return (1);
 	}
@@ -466,7 +496,7 @@ int	main(int argc, char **argv)
 	mlx_loop(map->mlx);
 	mlx_terminate(map->mlx);
 	delete_images(map);
-	cleanup_map(map);
+	cleanup_mapp(map);
 	free(map);
 	return (0);
 }
