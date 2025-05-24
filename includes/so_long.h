@@ -53,6 +53,7 @@ typedef struct s_img
 	mlx_image_t	*exit_open;
 	mlx_image_t	*player_img;
 	mlx_image_t	*enemy;
+	mlx_image_t	*moves;
 	uint32_t	**coin_instances;
 }	t_img;
 
@@ -103,6 +104,7 @@ typedef struct s_map
 	int		y;
 	int		coin;
 	int		player_count;
+	int		enemy_count;
 	int		exit;
 	int		coin_check;
 	int		exit_check;
