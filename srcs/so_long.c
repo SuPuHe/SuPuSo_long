@@ -13,6 +13,13 @@
 #include "so_long.h"
 #include <math.h>
 
+int	ft_abs(int n)
+{
+	if (n < 0)
+		return (-n);
+	return (n);
+}
+
 void	delete_textures(t_texture *texture, t_map *map)
 {
 	// int	i;
@@ -103,6 +110,26 @@ void	initialize_player_enemy(t_map *map)
 	map->enemy.dir = RIGHT;
 }
 
+void	get_instances_for_keys(t_map *map)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	map->img.coin_instances = malloc(sizeof(uint32_t *) * map->y);
+	while (i < map->y)
+	{
+		j = 0;
+		map->img.coin_instances[i] = malloc(sizeof(uint32_t) * map->x);
+		while (j < map->x)
+		{
+			map->img.coin_instances[i][j] = 4294967295;
+			j++;
+		}
+		i++;
+	}
+}
+
 int	map_render(t_map *map)
 {
 	t_texture	texture;
@@ -112,15 +139,7 @@ int	map_render(t_map *map)
 	if (!map->mlx)
 		return (1);
 	mlx_set_setting(MLX_STRETCH_IMAGE, true);
-
-	map->img.coin_instances = malloc(sizeof(uint32_t *) * map->y);
-	for (int i = 0; i < map->y; i++)
-	{
-		map->img.coin_instances[i] = malloc(sizeof(uint32_t) * map->x);
-		for (int j = 0; j < map->x; j++)
-			map->img.coin_instances[i][j] = 4294967295; // invalid default
-	}
-
+	get_instances_for_keys(map);
 	texture.wall = mlx_load_png("textures/wall_dungeon.png");
 	texture.floor = mlx_load_png("textures/floor_dungeon2.png");
 	texture.coin = mlx_load_png("textures/key2.png");
@@ -137,30 +156,30 @@ int	map_render(t_map *map)
 	map->enemy.mirror[2] = mlx_load_png("textures/bat3_m.png");
 	map->enemy.mirror[3] = mlx_load_png("textures/bat4_m.png");
 
-	map->player.textures[0] = mlx_load_png("textures/tile000.png");
-	map->player.textures[1] = mlx_load_png("textures/tile001.png");
-	map->player.textures[2] = mlx_load_png("textures/tile002.png");
-	map->player.textures[3] = mlx_load_png("textures/tile003.png");
-	map->player.textures[4] = mlx_load_png("textures/tile004.png");
-	map->player.textures[5] = mlx_load_png("textures/tile005.png");
+	map->player.textures[0] = mlx_load_png("textures/samurai000.png");
+	map->player.textures[1] = mlx_load_png("textures/samurai001.png");
+	map->player.textures[2] = mlx_load_png("textures/samurai002.png");
+	map->player.textures[3] = mlx_load_png("textures/samurai003.png");
+	map->player.textures[4] = mlx_load_png("textures/samurai004.png");
+	map->player.textures[5] = mlx_load_png("textures/samurai005.png");
 
-	map->player.run[0] = mlx_load_png("textures/run000.png");
-	map->player.run[1] = mlx_load_png("textures/run001.png");
-	map->player.run[2] = mlx_load_png("textures/run002.png");
-	map->player.run[3] = mlx_load_png("textures/run003.png");
-	map->player.run[4] = mlx_load_png("textures/run004.png");
-	map->player.run[5] = mlx_load_png("textures/run005.png");
-	map->player.run[6] = mlx_load_png("textures/run006.png");
-	map->player.run[7] = mlx_load_png("textures/run007.png");
+	map->player.run[0] = mlx_load_png("textures/samurai_run000.png");
+	map->player.run[1] = mlx_load_png("textures/samurai_run001.png");
+	map->player.run[2] = mlx_load_png("textures/samurai_run002.png");
+	map->player.run[3] = mlx_load_png("textures/samurai_run003.png");
+	map->player.run[4] = mlx_load_png("textures/samurai_run004.png");
+	map->player.run[5] = mlx_load_png("textures/samurai_run005.png");
+	map->player.run[6] = mlx_load_png("textures/samurai_run006.png");
+	map->player.run[7] = mlx_load_png("textures/samurai_run007.png");
 
-	map->player.run_left[0] = mlx_load_png("textures/run000_m.png");
-	map->player.run_left[1] = mlx_load_png("textures/run001_m.png");
-	map->player.run_left[2] = mlx_load_png("textures/run002_m.png");
-	map->player.run_left[3] = mlx_load_png("textures/run003_m.png");
-	map->player.run_left[4] = mlx_load_png("textures/run004_m.png");
-	map->player.run_left[5] = mlx_load_png("textures/run005_m.png");
-	map->player.run_left[6] = mlx_load_png("textures/run006_m.png");
-	map->player.run_left[7] = mlx_load_png("textures/run007_m.png");
+	map->player.run_left[0] = mlx_load_png("textures/samurai_run000_m.png");
+	map->player.run_left[1] = mlx_load_png("textures/samurai_run001_m.png");
+	map->player.run_left[2] = mlx_load_png("textures/samurai_run002_m.png");
+	map->player.run_left[3] = mlx_load_png("textures/samurai_run003_m.png");
+	map->player.run_left[4] = mlx_load_png("textures/samurai_run004_m.png");
+	map->player.run_left[5] = mlx_load_png("textures/samurai_run005_m.png");
+	map->player.run_left[6] = mlx_load_png("textures/samurai_run006_m.png");
+	map->player.run_left[7] = mlx_load_png("textures/samurai_run007_m.png");
 
 	map->img.player_img = mlx_texture_to_image(map->mlx, map->player.textures[0]);
 	//  mlx_image_to_window(map->mlx, map->img.player_img,
@@ -237,7 +256,7 @@ void	end_logic(t_map *map)
 		ft_printf("WIN\n");
 		mlx_close_window(map->mlx);
 	}
-	else if (map->map[map->player.y][map->player.x] == 'B')
+	else if (map->player.y == map->enemy.y && map->player.x == map->enemy.x)
 	{
 		ft_printf("LOSE\n");
 		mlx_close_window(map->mlx);
@@ -249,9 +268,9 @@ void	move_player(t_map *map, int dx, int dy)
 	uint32_t	coin_idx;
 
 	if (map->player.is_moving)
-		return;
+		return ;
 	if (map->map[map->player.y + dy][map->player.x + dx] == '1')
-		return;
+		return ;
 	update_player_pos_and_moves(map, dx, dy);
 	if (map->map[map->player.y][map->player.x] == 'C')
 	{
@@ -263,7 +282,6 @@ void	move_player(t_map *map, int dx, int dy)
 			mlx_delete_image(map->mlx, map->img.exit_img);
 	}
 	end_logic(map);
-	map->map[map->player.y][map->player.x] = 'P';
 }
 
 void	key_a_d(mlx_key_data_t keydata, t_map *map)
@@ -320,51 +338,79 @@ void	delete_images(t_map *map)
 		mlx_delete_image(map->mlx, map->img.enemy);
 }
 
+int	is_walkable(char tile)
+{
+	return (tile != '1');
+}
+
 void	update_enemy_pos(t_map *map, t_enemy *e, int dx, int dy)
 {
+	int	primary_dx;
+	int	primary_dy;
+	int	secondary_dx;
+	int	secondary_dy;
+
+	primary_dx = 0;
+	primary_dy = 0;
+	secondary_dx = 0;
+	secondary_dy = 0;
 	if (e->is_moving)
 		return;
 	if (e->x < map->player.x)
-		dx = 1;
+		primary_dx = 1;
 	else if (e->x > map->player.x)
-		dx = -1;
+		primary_dx = -1;
 	if (e->y < map->player.y)
-		dy = 1;
+		primary_dy = 1;
 	else if (e->y > map->player.y)
-		dy = -1;
-	if (abs(e->x - map->player.x) > abs(e->y - map->player.y))
+		primary_dy = -1;
+	if (ft_abs(e->x - map->player.x) > ft_abs(e->y - map->player.y))
+	{
+		dx = primary_dx;
 		dy = 0;
+		secondary_dx = 0;
+		secondary_dy = primary_dy;
+	}
 	else
+	{
 		dx = 0;
-	if (map->map[e->y + dy][e->x + dx] == '1')
-		return;
-	if (map->map[e->y][e->x] == 'B')
-		map->map[e->y][e->x] = e->under;
-	e->under = map->map[e->y + dy][e->x + dx];
-	e->x += dx;
-	e->y += dy;
-	if (dx < 0)
+		dy = primary_dy;
+		secondary_dx = primary_dx;
+		secondary_dy = 0;
+	}
+
+	if (is_walkable(map->map[e->y + dy][e->x + dx]))
+	{
+		e->x += dx;
+		e->y += dy;
+	}
+	else if (is_walkable(map->map[e->y + secondary_dy][e->x + secondary_dx]))
+	{
+		e->x += secondary_dx;
+		e->y += secondary_dy;
+	}
+	else
+		return ;
+	if (dx < 0 || secondary_dx < 0)
 		e->dir = LEFT;
-	else if (dx > 0)
+	else if (dx > 0 || secondary_dx > 0)
 		e->dir = RIGHT;
 }
-
 void	move_enemy(t_map *map)
 {
 	t_enemy	*e;
 	int		dx;
 	int		dy;
 
-	e = &map->enemy;
 	dx = 0;
 	dy = 0;
+	e = &map->enemy;
 	update_enemy_pos(map, e, dx, dy);
 	if (e->x == map->player.x && e->y == map->player.y)
 	{
 		ft_printf("LOSE\n");
 		mlx_close_window(map->mlx);
 	}
-	map->map[e->y][e->x] = 'B';
 	e->target_pixel_x = e->x * PIXEL;
 	e->target_pixel_y = e->y * PIXEL;
 	e->is_moving = 1;
@@ -393,8 +439,8 @@ void	animate_enemy(void *param)
 			e->pixel_y += e->move_speed;
 		else if (e->pixel_y > e->target_pixel_y)
 			e->pixel_y -= e->move_speed;
-		if (abs(e->pixel_x - e->target_pixel_x) <= e->move_speed &&
-			abs(e->pixel_y - e->target_pixel_y) <= e->move_speed)
+		if (ft_abs(e->pixel_x - e->target_pixel_x) <= e->move_speed &&
+			ft_abs(e->pixel_y - e->target_pixel_y) <= e->move_speed)
 		{
 			e->pixel_x = e->target_pixel_x;
 			e->pixel_y = e->target_pixel_y;
@@ -418,16 +464,24 @@ void	animate_enemy(void *param)
 
 void	animate_player(void *param)
 {
-	t_map	*map = (t_map *)param;
-	t_player *p = &map->player;
-	mlx_texture_t **anim = (p->state == RUN) ? p->run : p->textures;
+	t_map	*map;
+	t_player *p;
+	mlx_texture_t **anim;
+	int max_frames;
+	static int move_timer = 0;
+
+	map = (t_map *)param;
+	p = &map->player;
+	if (p->state == RUN)
+		anim = p->run;
+	else
+		anim = p->textures;
 	if (p->dir == LEFT && p->state == RUN)
 		anim = p->run_left;
-	int max_frames = (p->state == RUN) ? 8 : 6;
-	//uint32_t idx;
-
-	// Smooth movement
-
+	if (p->state == RUN)
+		max_frames = 8;
+	else
+		max_frames = 6;
 	if (p->is_moving)
 	{
 		if (p->pixel_x < p->target_pixel_x)
@@ -439,17 +493,15 @@ void	animate_player(void *param)
 		else if (p->pixel_y > p->target_pixel_y)
 			p->pixel_y -= p->move_speed;
 
-		if (abs(p->pixel_x - p->target_pixel_x) <= p->move_speed &&
-			abs(p->pixel_y - p->target_pixel_y) <= p->move_speed)
+		if (ft_abs(p->pixel_x - p->target_pixel_x) <= p->move_speed &&
+			ft_abs(p->pixel_y - p->target_pixel_y) <= p->move_speed)
 		{
 			p->pixel_x = p->target_pixel_x;
 			p->pixel_y = p->target_pixel_y;
 			p->is_moving = 0;
-			p->state = IDLE; // Switch to idle after movement ends
+			p->state = IDLE;
 		}
 	}
-
-	// Frame animation
 	p->frame_counter++;
 	if (p->frame_counter > 25)
 	{
@@ -458,13 +510,9 @@ void	animate_player(void *param)
 		if (p->frame >= max_frames)
 			p->frame = 0;
 	}
-
-	// Draw correct frame
 	mlx_delete_image(map->mlx, map->img.player_img);
 	map->img.player_img = mlx_texture_to_image(map->mlx, anim[p->frame]);
 	mlx_image_to_window(map->mlx, map->img.player_img, p->pixel_x, p->pixel_y);
-	//map->img.player_img->instances[idx].z = 1;
-	static int move_timer = 0;
 	if (++move_timer > 1)
 	{
 		move_enemy(map);
