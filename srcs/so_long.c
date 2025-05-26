@@ -71,7 +71,7 @@ void	img_loading(t_map *map, int i, int j)
 	idx = mlx_image_to_window(map->mlx, map->img.floor, x, y);
 	map->img.floor->instances[idx].z = 0;
 	if (map->map[i][j] == 'P')
-		idx = mlx_image_to_window(map->mlx, map->img.player_img, x, y);
+		mlx_image_to_window(map->mlx, map->img.player_img, x, y);
 	else if (map->map[i][j] == '1')
 	{
 		idx = mlx_image_to_window(map->mlx, map->img.wall, x, y);
@@ -130,6 +130,38 @@ void	get_instances_for_keys(t_map *map)
 	}
 }
 
+void	load_p_img(t_map *map)
+{
+	map->player.textures[0] = mlx_load_png("textures/samurai000.png");
+	map->player.textures[1] = mlx_load_png("textures/samurai001.png");
+	map->player.textures[2] = mlx_load_png("textures/samurai002.png");
+	map->player.textures[3] = mlx_load_png("textures/samurai003.png");
+	map->player.textures[4] = mlx_load_png("textures/samurai004.png");
+	map->player.textures[5] = mlx_load_png("textures/samurai005.png");
+	map->player.run[0] = mlx_load_png("textures/samurai_run000.png");
+	map->player.run[1] = mlx_load_png("textures/samurai_run001.png");
+	map->player.run[2] = mlx_load_png("textures/samurai_run002.png");
+	map->player.run[3] = mlx_load_png("textures/samurai_run003.png");
+	map->player.run[4] = mlx_load_png("textures/samurai_run004.png");
+	map->player.run[5] = mlx_load_png("textures/samurai_run005.png");
+	map->player.run[6] = mlx_load_png("textures/samurai_run006.png");
+	map->player.run[7] = mlx_load_png("textures/samurai_run007.png");
+	map->player.run_left[0] = mlx_load_png("textures/samurai_run000_m.png");
+	map->player.run_left[1] = mlx_load_png("textures/samurai_run001_m.png");
+	map->player.run_left[2] = mlx_load_png("textures/samurai_run002_m.png");
+	map->player.run_left[3] = mlx_load_png("textures/samurai_run003_m.png");
+	map->player.run_left[4] = mlx_load_png("textures/samurai_run004_m.png");
+	map->player.run_left[5] = mlx_load_png("textures/samurai_run005_m.png");
+	map->player.run_left[6] = mlx_load_png("textures/samurai_run006_m.png");
+	map->player.run_left[7] = mlx_load_png("textures/samurai_run007_m.png");
+	map->img.player_img = mlx_texture_to_image(map->mlx, map->player.textures[0]);
+}
+
+void	load_another_img()
+{
+
+}
+
 int	map_render(t_map *map)
 {
 	t_texture	texture;
@@ -156,32 +188,8 @@ int	map_render(t_map *map)
 	map->enemy.mirror[2] = mlx_load_png("textures/bat3_m.png");
 	map->enemy.mirror[3] = mlx_load_png("textures/bat4_m.png");
 
-	map->player.textures[0] = mlx_load_png("textures/samurai000.png");
-	map->player.textures[1] = mlx_load_png("textures/samurai001.png");
-	map->player.textures[2] = mlx_load_png("textures/samurai002.png");
-	map->player.textures[3] = mlx_load_png("textures/samurai003.png");
-	map->player.textures[4] = mlx_load_png("textures/samurai004.png");
-	map->player.textures[5] = mlx_load_png("textures/samurai005.png");
 
-	map->player.run[0] = mlx_load_png("textures/samurai_run000.png");
-	map->player.run[1] = mlx_load_png("textures/samurai_run001.png");
-	map->player.run[2] = mlx_load_png("textures/samurai_run002.png");
-	map->player.run[3] = mlx_load_png("textures/samurai_run003.png");
-	map->player.run[4] = mlx_load_png("textures/samurai_run004.png");
-	map->player.run[5] = mlx_load_png("textures/samurai_run005.png");
-	map->player.run[6] = mlx_load_png("textures/samurai_run006.png");
-	map->player.run[7] = mlx_load_png("textures/samurai_run007.png");
-
-	map->player.run_left[0] = mlx_load_png("textures/samurai_run000_m.png");
-	map->player.run_left[1] = mlx_load_png("textures/samurai_run001_m.png");
-	map->player.run_left[2] = mlx_load_png("textures/samurai_run002_m.png");
-	map->player.run_left[3] = mlx_load_png("textures/samurai_run003_m.png");
-	map->player.run_left[4] = mlx_load_png("textures/samurai_run004_m.png");
-	map->player.run_left[5] = mlx_load_png("textures/samurai_run005_m.png");
-	map->player.run_left[6] = mlx_load_png("textures/samurai_run006_m.png");
-	map->player.run_left[7] = mlx_load_png("textures/samurai_run007_m.png");
-
-	map->img.player_img = mlx_texture_to_image(map->mlx, map->player.textures[0]);
+	load_p_img(map);
 	//  mlx_image_to_window(map->mlx, map->img.player_img,
 	// 	map->player.x * PIXEL, map->player.y * PIXEL);
 	// mlx_set_instance_depth(map->img.player_img->instances, 1);
@@ -343,6 +351,11 @@ int	is_walkable(char tile)
 	return (tile != '1');
 }
 
+void	update_enemy_pos2()
+{
+
+}
+
 void	update_enemy_pos(t_map *map, t_enemy *e, int dx, int dy)
 {
 	int	primary_dx;
@@ -378,7 +391,6 @@ void	update_enemy_pos(t_map *map, t_enemy *e, int dx, int dy)
 		secondary_dx = primary_dx;
 		secondary_dy = 0;
 	}
-
 	if (is_walkable(map->map[e->y + dy][e->x + dx]))
 	{
 		e->x += dx;
@@ -416,19 +428,8 @@ void	move_enemy(t_map *map)
 	e->is_moving = 1;
 }
 
-void	animate_enemy(void *param)
+void	prepare_e_movement(t_enemy *e)
 {
-	t_map	*map;
-	t_enemy *e;
-	mlx_texture_t **anim;
-	uint32_t idx;
-
-	map = (t_map *)param;
-	e = &map->enemy;
-	if (e->dir == LEFT)
-		anim = e->mirror;
-	else if (e->dir == RIGHT)
-		anim = e->texture;
 	if (e->is_moving)
 	{
 		if (e->pixel_x < e->target_pixel_x)
@@ -447,8 +448,24 @@ void	animate_enemy(void *param)
 			e->is_moving = 0;
 		}
 	}
+}
+
+void	animate_enemy(void *param)
+{
+	t_map	*map;
+	t_enemy *e;
+	mlx_texture_t **anim;
+	uint32_t idx;
+
+	map = (t_map *)param;
+	e = &map->enemy;
+	if (e->dir == LEFT)
+		anim = e->mirror;
+	else
+		anim = e->texture;
+	prepare_e_movement(e);
 	e->frame_counter++;
-	if (e->frame_counter > 25)
+	if (e->frame_counter > 20)
 	{
 		e->frame_counter = 0;
 		e->frame++;
@@ -462,13 +479,51 @@ void	animate_enemy(void *param)
 }
 
 
+void	prepare_p_movement(t_player *p)
+{
+	if (p->is_moving)
+	{
+		if (p->pixel_x < p->target_pixel_x)
+			p->pixel_x += p->move_speed;
+		else if (p->pixel_x > p->target_pixel_x)
+			p->pixel_x -= p->move_speed;
+		if (p->pixel_y < p->target_pixel_y)
+			p->pixel_y += p->move_speed;
+		else if (p->pixel_y > p->target_pixel_y)
+			p->pixel_y -= p->move_speed;
+		if (ft_abs(p->pixel_x - p->target_pixel_x) <= p->move_speed &&
+			ft_abs(p->pixel_y - p->target_pixel_y) <= p->move_speed)
+		{
+			p->pixel_x = p->target_pixel_x;
+			p->pixel_y = p->target_pixel_y;
+			p->is_moving = 0;
+			p->state = IDLE;
+		}
+	}
+}
+
+void	p_animation_cycle(t_player *p, int max_frames, t_map *map, mlx_texture_t **anim)
+{
+	p->frame_counter++;
+	if (p->frame_counter > 20)
+	{
+		p->frame_counter = 0;
+		p->frame++;
+		if (p->frame >= max_frames)
+			p->frame = 0;
+	}
+	mlx_delete_image(map->mlx, map->img.player_img);
+	map->img.player_img = mlx_texture_to_image(map->mlx, anim[p->frame]);
+	mlx_image_to_window(map->mlx, map->img.player_img, p->pixel_x, p->pixel_y);
+}
+
 void	animate_player(void *param)
 {
-	t_map	*map;
-	t_player *p;
-	mlx_texture_t **anim;
-	int max_frames;
-	static int move_timer = 0;
+	t_map			*map;
+	t_player		*p;
+	mlx_texture_t	**anim;
+	int				max_frames;
+	static int		move_timer = 0;
 
 	map = (t_map *)param;
 	p = &map->player;
@@ -482,37 +537,8 @@ void	animate_player(void *param)
 		max_frames = 8;
 	else
 		max_frames = 6;
-	if (p->is_moving)
-	{
-		if (p->pixel_x < p->target_pixel_x)
-			p->pixel_x += p->move_speed;
-		else if (p->pixel_x > p->target_pixel_x)
-			p->pixel_x -= p->move_speed;
-		if (p->pixel_y < p->target_pixel_y)
-			p->pixel_y += p->move_speed;
-		else if (p->pixel_y > p->target_pixel_y)
-			p->pixel_y -= p->move_speed;
-
-		if (ft_abs(p->pixel_x - p->target_pixel_x) <= p->move_speed &&
-			ft_abs(p->pixel_y - p->target_pixel_y) <= p->move_speed)
-		{
-			p->pixel_x = p->target_pixel_x;
-			p->pixel_y = p->target_pixel_y;
-			p->is_moving = 0;
-			p->state = IDLE;
-		}
-	}
-	p->frame_counter++;
-	if (p->frame_counter > 25)
-	{
-		p->frame_counter = 0;
-		p->frame++;
-		if (p->frame >= max_frames)
-			p->frame = 0;
-	}
-	mlx_delete_image(map->mlx, map->img.player_img);
-	map->img.player_img = mlx_texture_to_image(map->mlx, anim[p->frame]);
-	mlx_image_to_window(map->mlx, map->img.player_img, p->pixel_x, p->pixel_y);
+	prepare_p_movement(p);
+	p_animation_cycle(p, max_frames, map, anim);
 	if (++move_timer > 1)
 	{
 		move_enemy(map);
@@ -535,13 +561,23 @@ void	cleanup_mapp(t_map *map)
 	}
 	if (map->img.coin_instances)
 	{
-		for (i = 0; i < map->y; i++)
+		i = 0;
+		while (i < map->y)
+		{
 			free(map->img.coin_instances[i]);
+			i++;
+		}
 		free(map->img.coin_instances);
 	}
 	// if (map->mlx)
 	// 	mlx_terminate(map->mlx);
 	// delete_textures(&map->img, map);
+}
+
+#include <stdlib.h>
+
+void check_leaks(void) {
+	system("leaks so_long");
 }
 
 int	main(int argc, char **argv)
@@ -558,6 +594,7 @@ int	main(int argc, char **argv)
 		delete_images(map);
 		cleanup_mapp(map);
 		free(map);
+		//atexit(check_leaks);
 		return (1);
 	}
 	mlx_key_hook(map->mlx, key_handler, map);
@@ -568,5 +605,6 @@ int	main(int argc, char **argv)
 	delete_images(map);
 	cleanup_mapp(map);
 	free(map);
+//	atexit(check_leaks);
 	return (0);
 }
