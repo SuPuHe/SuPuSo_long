@@ -20,30 +20,6 @@ int	ft_abs(int n)
 	return (n);
 }
 
-void	delete_textures(t_texture *texture, t_map *map)
-{
-	// int	i;
-
-	// i = 0;
-	map->coin = map->coin;
-	// while (i < 6)
-	// {
-	// 	if (map->player.textures[i])
-	// 		mlx_delete_texture(map->player.textures[i]);
-	// 	i++;
-	// }
-	// if (texture->enemy)
-	// 	mlx_delete_texture(texture->enemy);
-	if (texture->wall)
-		mlx_delete_texture(texture->wall);
-	if (texture->floor)
-		mlx_delete_texture(texture->floor);
-	if (texture->coin)
-		mlx_delete_texture(texture->coin);
-	if (texture->exit)
-		mlx_delete_texture(texture->exit);
-}
-
 void	img_load_exit_enemy(t_map *map, int i, int j, uint32_t idx)
 {
 	if (map->map[i][j] == 'E')
@@ -157,76 +133,60 @@ void	load_p_img(t_map *map)
 	map->img.player_img = mlx_texture_to_image(map->mlx, map->player.textures[0]);
 }
 
-void	load_another_img()
+void	delete_textures(t_texture *texture)
 {
+	if (texture->wall)
+		mlx_delete_texture(texture->wall);
+	if (texture->floor)
+		mlx_delete_texture(texture->floor);
+	if (texture->coin)
+		mlx_delete_texture(texture->coin);
+	if (texture->exit)
+		mlx_delete_texture(texture->exit);
+	if (texture->exit_open)
+		mlx_delete_texture(texture->exit_open);
+}
 
+int	load_another_img(t_map *map, t_texture *texture)
+{
+	texture->wall = mlx_load_png("textures/wall_dungeon.png");
+	texture->floor = mlx_load_png("textures/floor_dungeon2.png");
+	texture->coin = mlx_load_png("textures/key2.png");
+	texture->exit = mlx_load_png("textures/stairs_closed.png");
+	texture->exit_open = mlx_load_png("textures/stairs2.png");
+	map->enemy.texture[0] = mlx_load_png("textures/bat1.png");
+	map->enemy.texture[1] = mlx_load_png("textures/bat2.png");
+	map->enemy.texture[2] = mlx_load_png("textures/bat3.png");
+	map->enemy.texture[3] = mlx_load_png("textures/bat4.png");
+	map->enemy.mirror[0] = mlx_load_png("textures/bat1_m.png");
+	map->enemy.mirror[1] = mlx_load_png("textures/bat2_m.png");
+	map->enemy.mirror[2] = mlx_load_png("textures/bat3_m.png");
+	map->enemy.mirror[3] = mlx_load_png("textures/bat4_m.png");
+	map->img.enemy = mlx_texture_to_image(map->mlx, map->enemy.texture[0]);
+	map->img.wall = mlx_texture_to_image(map->mlx, texture->wall);
+	map->img.floor = mlx_texture_to_image(map->mlx, texture->floor);
+	map->img.collectible = mlx_texture_to_image(map->mlx, texture->coin);
+	map->img.exit_img = mlx_texture_to_image(map->mlx, texture->exit);
+	map->img.exit_open = mlx_texture_to_image(map->mlx, texture->exit_open);
+	if (!texture->wall || !texture->floor || !texture->coin ||
+		!texture->exit || !texture->exit_open)
+		return (delete_textures(texture), 1);
+	return (0);
 }
 
 int	map_render(t_map *map)
 {
 	t_texture	texture;
+	int			j;
+	int			i;
 
-	//ft_printf("Map size: %d x %d\n", map->x, map->y);
 	map->mlx = mlx_init(PIXEL * map->x, PIXEL * map->y, "so_long", true);
 	if (!map->mlx)
 		return (1);
 	mlx_set_setting(MLX_STRETCH_IMAGE, true);
 	get_instances_for_keys(map);
-	texture.wall = mlx_load_png("textures/wall_dungeon.png");
-	texture.floor = mlx_load_png("textures/floor_dungeon2.png");
-	texture.coin = mlx_load_png("textures/key2.png");
-	texture.exit = mlx_load_png("textures/stairs_closed.png");
-	texture.exit_open = mlx_load_png("textures/stairs2.png");
-
-	map->enemy.texture[0] = mlx_load_png("textures/bat1.png");
-	map->enemy.texture[1] = mlx_load_png("textures/bat2.png");
-	map->enemy.texture[2] = mlx_load_png("textures/bat3.png");
-	map->enemy.texture[3] = mlx_load_png("textures/bat4.png");
-
-	map->enemy.mirror[0] = mlx_load_png("textures/bat1_m.png");
-	map->enemy.mirror[1] = mlx_load_png("textures/bat2_m.png");
-	map->enemy.mirror[2] = mlx_load_png("textures/bat3_m.png");
-	map->enemy.mirror[3] = mlx_load_png("textures/bat4_m.png");
-
-
+	load_another_img(map, &texture);
 	load_p_img(map);
-	//  mlx_image_to_window(map->mlx, map->img.player_img,
-	// 	map->player.x * PIXEL, map->player.y * PIXEL);
-	// mlx_set_instance_depth(map->img.player_img->instances, 1);
-
-	map->img.enemy = mlx_texture_to_image(map->mlx, map->enemy.texture[0]);
-	//  mlx_image_to_window(map->mlx, map->img.enemy,
-	//  	map->enemy.x * PIXEL, map->enemy.y * PIXEL);
-	// mlx_set_instance_depth(map->img.enemy->instances, 2);
-
-	// if (!texture.coin || !texture.exit || !texture.floor
-	// 	|| !map->player.textures[0] || !texture.wall)
-	// {
-	// 	delete_textures(&texture, map);
-	// 	mlx_terminate(map->mlx);
-	// 	return (1);
-	// }
-
-	map->img.wall = mlx_texture_to_image(map->mlx, texture.wall);
-	mlx_delete_texture(texture.wall);
-	map->img.floor = mlx_texture_to_image(map->mlx, texture.floor);
-	mlx_delete_texture(texture.floor);
-	map->img.collectible = mlx_texture_to_image(map->mlx, texture.coin);
-	mlx_delete_texture(texture.coin);
-	map->img.exit_img = mlx_texture_to_image(map->mlx, texture.exit);
-	mlx_delete_texture(texture.exit);
-	map->img.exit_open = mlx_texture_to_image(map->mlx, texture.exit_open);
-	mlx_delete_texture(texture.exit_open);
-
-	// if (!map->img.player_img || !map->img.enemy || !map->img.collectible
-	// 	|| !map->img.wall || !map->img.floor || !map->img.exit_img)
-	// {
-	// 	delete_textures(&texture, map);
-	// 	mlx_terminate(map->mlx);
-	// 	return (1);
-	// }
-
-	int i, j;
 	i = 0;
 	while (map->map[i])
 	{
@@ -351,63 +311,60 @@ int	is_walkable(char tile)
 	return (tile != '1');
 }
 
-void	update_enemy_pos2()
+void	find_path_to_player(t_enemy *e, t_map *map, int *dx, int *dy)
 {
-
+	if (e->is_moving)
+		return ;
+	if (e->x < map->player.x)
+		map->enemy.p_dx = 1;
+	else if (e->x > map->player.x)
+		map->enemy.p_dx = -1;
+	if (e->y < map->player.y)
+		map->enemy.p_dy = 1;
+	else if (e->y > map->player.y)
+		map->enemy.p_dy = -1;
+	if (ft_abs(e->x - map->player.x) > ft_abs(e->y - map->player.y))
+	{
+		*dx = map->enemy.p_dx;
+		*dy = 0;
+		map->enemy.s_dx = 0;
+		map->enemy.s_dy = map->enemy.p_dy;
+	}
+	else
+	{
+		*dx = 0;
+		*dy = map->enemy.p_dy;
+		map->enemy.s_dx = map->enemy.p_dx;
+		map->enemy.s_dy = 0;
+	}
 }
 
 void	update_enemy_pos(t_map *map, t_enemy *e, int dx, int dy)
 {
-	int	primary_dx;
-	int	primary_dy;
-	int	secondary_dx;
-	int	secondary_dy;
-
-	primary_dx = 0;
-	primary_dy = 0;
-	secondary_dx = 0;
-	secondary_dy = 0;
-	if (e->is_moving)
-		return;
-	if (e->x < map->player.x)
-		primary_dx = 1;
-	else if (e->x > map->player.x)
-		primary_dx = -1;
-	if (e->y < map->player.y)
-		primary_dy = 1;
-	else if (e->y > map->player.y)
-		primary_dy = -1;
-	if (ft_abs(e->x - map->player.x) > ft_abs(e->y - map->player.y))
-	{
-		dx = primary_dx;
-		dy = 0;
-		secondary_dx = 0;
-		secondary_dy = primary_dy;
-	}
-	else
-	{
-		dx = 0;
-		dy = primary_dy;
-		secondary_dx = primary_dx;
-		secondary_dy = 0;
-	}
+	map->enemy.p_dx = 0;
+	map->enemy.p_dy = 0;
+	map->enemy.s_dx = 0;
+	map->enemy.s_dy = 0;
+	find_path_to_player(e, map, &dx, &dy);
 	if (is_walkable(map->map[e->y + dy][e->x + dx]))
 	{
 		e->x += dx;
 		e->y += dy;
 	}
-	else if (is_walkable(map->map[e->y + secondary_dy][e->x + secondary_dx]))
+	else if (is_walkable(map->map[e->y + map->enemy.s_dy][e->x + map->enemy.s_dx]))
 	{
-		e->x += secondary_dx;
-		e->y += secondary_dy;
+		e->x += map->enemy.s_dx;
+		e->y += map->enemy.s_dy;
 	}
 	else
 		return ;
-	if (dx < 0 || secondary_dx < 0)
+	if (dx < 0 || map->enemy.s_dx < 0)
 		e->dir = LEFT;
-	else if (dx > 0 || secondary_dx > 0)
+	else if (dx > 0 || map->enemy.s_dx > 0)
 		e->dir = RIGHT;
 }
+
+
 void	move_enemy(t_map *map)
 {
 	t_enemy	*e;
@@ -452,10 +409,10 @@ void	prepare_e_movement(t_enemy *e)
 
 void	animate_enemy(void *param)
 {
-	t_map	*map;
-	t_enemy *e;
-	mlx_texture_t **anim;
-	uint32_t idx;
+	t_map			*map;
+	t_enemy			*e;
+	mlx_texture_t	**anim;
+	uint32_t		idx;
 
 	map = (t_map *)param;
 	e = &map->enemy;
@@ -576,7 +533,8 @@ void	cleanup_mapp(t_map *map)
 
 #include <stdlib.h>
 
-void check_leaks(void) {
+void check_leaks(void)
+{
 	system("leaks so_long");
 }
 

@@ -23,7 +23,6 @@
 
 typedef struct s_texture
 {
-	//mlx_texture_t	*player;
 	mlx_texture_t	*coin;
 	mlx_texture_t	*wall;
 	mlx_texture_t	*floor;
@@ -31,15 +30,16 @@ typedef struct s_texture
 	mlx_texture_t	*exit_open;
 	mlx_texture_t	*win;
 	mlx_texture_t	*lose;
-	//mlx_texture_t	*enemy;
 }	t_texture;
 
-typedef enum e_state {
+typedef enum e_state
+{
 	IDLE,
 	RUN
 }	t_state;
 
-typedef enum e_dir {
+typedef enum e_dir
+{
 	RIGHT,
 	LEFT
 }	t_dir;
@@ -86,6 +86,10 @@ typedef struct s_enemy
 	int				pixel_y;
 	int				target_pixel_x;
 	int				target_pixel_y;
+	int				p_dx;
+	int				p_dy;
+	int				s_dx;
+	int				s_dy;
 	int				is_moving;
 	int				move_speed;
 	int				frame;
