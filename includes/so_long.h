@@ -55,8 +55,7 @@ typedef struct s_img
 	mlx_image_t	*player_img;
 	mlx_image_t	*enemy;
 	mlx_image_t	*moves;
-	mlx_image_t	*move_digits[12];
-	int			move_digits_count;
+	mlx_image_t	*num;
 	uint32_t	**coin_instances;
 }	t_img;
 
