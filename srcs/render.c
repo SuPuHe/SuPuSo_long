@@ -6,7 +6,7 @@
 /*   By: omizin <omizin@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/27 14:00:46 by omizin            #+#    #+#             */
-/*   Updated: 2025/05/27 14:02:54 by omizin           ###   ########.fr       */
+/*   Updated: 2025/05/27 17:28:41 by omizin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,6 +107,55 @@ static void	get_instances_for_keys(t_map *map)
 	}
 }
 
+int	check_num_textures(t_map *map)
+{
+	int	i;
+
+	i = 0;
+	while (i < 10)
+	{
+		if (!map->t.num[i])
+		{
+			return (0);
+		}
+		i++;
+	}
+	return (1);
+}
+
+void	delete_num_textures(t_map *map)
+{
+	int	i;
+
+	i = 0;
+	while (i < 10)
+	{
+		if (map->t.num[i])
+			mlx_delete_texture(map->t.num[i]);
+		i++;
+	}
+}
+
+int	load_num_img(t_map *map)
+{
+	map->t.num[0] = mlx_load_png("textures/num000.png");
+	map->t.num[1] = mlx_load_png("textures/num001.png");
+	map->t.num[2] = mlx_load_png("textures/num002.png");
+	map->t.num[3] = mlx_load_png("textures/num003.png");
+	map->t.num[4] = mlx_load_png("textures/num004.png");
+	map->t.num[5] = mlx_load_png("textures/num005.png");
+	map->t.num[6] = mlx_load_png("textures/num006.png");
+	map->t.num[7] = mlx_load_png("textures/num007.png");
+	map->t.num[8] = mlx_load_png("textures/num008.png");
+	map->t.num[9] = mlx_load_png("textures/num009.png");
+	if (!check_num_textures(map))
+	{
+		return (delete_num_textures(map), delete_textures(map),
+			delete_p_texture(map), 0);
+	}
+	return (1);
+}
+
 int	map_render(t_map *map)
 {
 	map->mlx = mlx_init(PIXEL * map->x, PIXEL * map->y, "so_long", true);
@@ -114,14 +163,16 @@ int	map_render(t_map *map)
 		return (0);
 	mlx_set_setting(MLX_STRETCH_IMAGE, true);
 	get_instances_for_keys(map);
-	if (!load_p_img(map) || !load_another_img(map))
+	if (!load_p_img(map) || !load_another_img(map) || !load_num_img(map))
 		return (0);
 	map->img.player_img = mlx_texture_to_image(map->mlx,
 			map->player.textures[0]);
-	map->img.moves = mlx_put_string(map->mlx, "0", 64, 64);
 	if (!check_delete_imgs(map))
 		return (0);
 	load_img_to_window(map);
 	initialize_player_enemy(map);
+	// map->img.num = mlx_texture_to_image(map->mlx, map->t.num[0]);
+	// mlx_resize_image(map->img.num, 32, 32);
+	// mlx_image_to_window(map->mlx, map->img.num, 64, 64);
 	return (1);
 }

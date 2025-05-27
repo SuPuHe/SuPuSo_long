@@ -6,7 +6,7 @@
 /*   By: omizin <omizin@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/27 14:05:39 by omizin            #+#    #+#             */
-/*   Updated: 2025/05/27 14:06:29 by omizin           ###   ########.fr       */
+/*   Updated: 2025/05/27 17:22:54 by omizin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,7 @@ int	check_delete_imgs(t_map *map)
 	helper = 0;
 	if (!map->img.wall || !map->img.floor || !map->img.collectible
 		|| !map->img.exit_img || !map->img.exit_open || !map->img.enemy
-		|| !map->img.player_img || !map->img.moves)
+		|| !map->img.player_img)
 	{
 		delete_textures(map);
 		delete_p_texture(map);

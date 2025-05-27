@@ -6,15 +6,44 @@
 /*   By: omizin <omizin@student.42heilbronn.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/27 13:50:18 by omizin            #+#    #+#             */
-/*   Updated: 2025/05/27 13:55:28 by omizin           ###   ########.fr       */
+/*   Updated: 2025/05/27 17:34:58 by omizin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long.h"
 
+void	render_move_counter(t_map *map, int x, int y)
+{
+	char	buf[12];
+	int		len = 0;
+	int		tmp = map->moves;
+	int		i;
+	int		pos_x = x;
+	mlx_image_t	*img;
+
+	if (tmp == 0)
+		buf[len++] = '0';
+	else
+	{
+		while (tmp > 0 && len < 11)
+		{
+			buf[len++] = (tmp % 10) + '0';
+			tmp /= 10;
+		}
+	}
+	for (i = len - 1; i >= 0; i--)
+	{
+		int digit = buf[i] - '0';
+		img = mlx_texture_to_image(map->mlx, map->t.num[digit]);
+		mlx_resize_image(img, 32, 32);
+		mlx_image_to_window(map->mlx, img, pos_x, y);
+		pos_x += 32;
+	}
+}
+
 static void	update_player_pos_and_moves(t_map *map, int dx, int dy)
 {
-	char	*moves_str;
+	//char	*moves_str;
 
 	map->player.state = RUN;
 	map->player.target_pixel_x = (map->player.x + dx) * PIXEL;
@@ -22,11 +51,12 @@ static void	update_player_pos_and_moves(t_map *map, int dx, int dy)
 	map->player.is_moving = 1;
 	map->player.x += dx;
 	map->player.y += dy;
-	if (map->img.moves)
-		mlx_delete_image(map->mlx, map->img.moves);
-	moves_str = (ft_itoa(++map->moves));
-	map->img.moves = mlx_put_string(map->mlx, moves_str, 64, 64);
-	free(moves_str);
+	map->moves++;
+	//if (map->img.moves)
+	//	mlx_delete_image(map->mlx, map->img.moves);
+	//moves_str = (ft_itoa(++map->moves));
+	//map->img.moves = mlx_put_string(map->mlx, moves_str, 64, 64);
+	//free(moves_str);
 }
 
 void	move_player(t_map *map, int dx, int dy)
@@ -48,6 +78,7 @@ void	move_player(t_map *map, int dx, int dy)
 			mlx_delete_image(map->mlx, map->img.exit_img);
 	}
 	end_logic(map);
+	render_move_counter(map, 64, 64);
 }
 
 static void	prepare_p_movement(t_player *p)
