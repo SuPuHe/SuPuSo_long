@@ -76,7 +76,6 @@ typedef struct s_player
 	mlx_texture_t	*run_left[8];
 }	t_player;
 
-
 typedef struct s_enemy
 {
 	int				x;
@@ -99,27 +98,25 @@ typedef struct s_enemy
 	mlx_texture_t	*mirror[4];
 }	t_enemy;
 
-
 typedef struct s_map
 {
-	char	**map;
-	char	**copy_map;
-	int		x;
-	int		y;
-	int		coin;
-	int		player_count;
-	int		enemy_count;
-	int		exit;
-	int		coin_check;
-	int		exit_check;
-	int		moves;
-	mlx_t	*mlx;
-
+	char		**map;
+	char		**copy_map;
+	int			x;
+	int			y;
+	int			coin;
+	int			player_count;
+	int			enemy_count;
+	int			exit;
+	int			coin_check;
+	int			exit_check;
+	int			moves;
+	mlx_t		*mlx;
 	t_player	player;
 	t_enemy		enemy;
 	t_img		img;
+	t_texture	t;
 }	t_map;
-
 
 void	free_split(char **lines);
 void	free_all_gnl(void);
@@ -132,4 +129,26 @@ int		ft_get_map(char *argv, t_map *map);
 char	**split_map_into_lines(char *map);
 char	**copy_map(char **map, int y);
 
+void	end_logic(t_map *map);
+void	move_player(t_map *map, int dx, int dy);
+void	animate_player(void *param);
+//movement_helpers
+int		ft_abs(int n);
+int		is_walkable(char tile);
+//enemy
+void	move_enemy(t_map *map);
+void	animate_enemy(void *param);
+//render
+int		map_render(t_map *map);
+//render_helpers
+void	delete_p_texture(t_map *map);
+int		check_p_texture(t_map *map);
+int		check_e_textures(t_map *map);
+void	delete_textures(t_map *map);
+int		check_delete_imgs(t_map *map);
+//load_delete_img
+void	delete_images(t_map *map);
+void	img_load_exit_enemy(t_map *map, int i, int j, uint32_t idx);
+void	img_loading(t_map *map, int i, int j);
+void	initialize_player_enemy(t_map *map);
 #endif

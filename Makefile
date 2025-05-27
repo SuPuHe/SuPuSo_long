@@ -35,7 +35,7 @@ CC = cc
 
 RM = rm -rf
 
-SRCS = so_long.c free_functions.c input_functions.c input_helpers.c
+SRCS = so_long.c free_functions.c input_functions.c input_helpers.c player.c movement_helpers.c enemy.c render.c render_helpers.c load_delete_img.c
 
 SRCS := $(addprefix $(SRCS_DIR)/, $(SRCS))
 

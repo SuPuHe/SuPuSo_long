@@ -38,12 +38,24 @@ void	free_split(char **arr)
 
 void	cleanup_map(t_map *map)
 {
+	int	i;
+
 	if (!map)
 		return ;
 	free_split(map->map);
 	map->map = NULL;
 	free_split(map->copy_map);
 	map->copy_map = NULL;
+	if (map->img.coin_instances)
+	{
+		i = 0;
+		while (i < map->y)
+		{
+			free(map->img.coin_instances[i]);
+			i++;
+		}
+		free(map->img.coin_instances);
+	}
 }
 
 void	free_all_gnl(void)

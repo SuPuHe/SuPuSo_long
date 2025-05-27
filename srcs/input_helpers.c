@@ -85,7 +85,8 @@ static int	ft_map_values_check(t_map *map, int x, int y)
 		map->enemy.y = y;
 		map->enemy_count++;
 	}
-	else if (map->map[y][x] == '0' || map->map[y][x] == '1' || map->map[y][x] == '\r')
+	else if (map->map[y][x] == '0' || map->map[y][x] == '1'
+		|| map->map[y][x] == '\r')
 		;
 	else
 		return (ft_printf("Wrong map |%c|\n", map->map[y][x]), 1);
@@ -109,7 +110,8 @@ int	ft_map_check(t_map *map)
 		}
 		y++;
 	}
-	if (map->coin < 1 || map->player_count != 1 || map->exit != 1 || map->enemy_count > 1)
+	if (map->coin < 1 || map->player_count != 1
+		|| map->exit != 1 || map->enemy_count > 1)
 		return (ft_printf("Error: Incorrect map content \n"), 1);
 	else
 		return (0);
